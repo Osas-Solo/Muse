@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/music_recogniser_menu_group">
+        <item
+            android:id="@+id/music_recogniser_menu_item"
+            android:title="@string/music_recogniser_menu_item_title"/>
+        <item
+            android:id="@+id/profile_menu_item"
+            android:title="@string/profile_menu_item_title"/>
+    </group>
+
+    <group android:id="@+id/info_menu_group">
+        <item
+            android:id="@+id/help_menu_item"
+            android:title="@string/help_menu_item_title"/>
+        <item
+            android:id="@+id/about_menu_item"
+            android:title="@string/about_menu_item_title"/>
+    </group>
+</menu>
