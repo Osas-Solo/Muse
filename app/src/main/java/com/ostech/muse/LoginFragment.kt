@@ -1,22 +1,28 @@
 package com.ostech.muse
 
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
-import androidx.fragment.app.Fragment
+import androidx.appcompat.widget.AppCompatCheckedTextView
+import androidx.appcompat.widget.AppCompatEditText
 import com.ostech.muse.databinding.FragmentIntroBinding
+import com.ostech.muse.databinding.FragmentLoginBinding
 
-class IntroFragment: Fragment() {
-    private var _binding: FragmentIntroBinding? = null
+class LoginFragment : Fragment() {
+    private var _binding: FragmentLoginBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
         }
+
+    private lateinit var emailEditText: AppCompatEditText
+    private lateinit var passwordEditText: AppCompatEditText
     private lateinit var loginButton: AppCompatButton
-    private lateinit var signupButton: AppCompatButton
+    private lateinit var forgotPasswordTextView: AppCompatCheckedTextView
+    private lateinit var signupAlternativeTextView: AppCompatCheckedTextView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -24,10 +30,7 @@ class IntroFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding =
-            FragmentIntroBinding.inflate(layoutInflater, container, false)
-        loginButton = binding.introLoginButton
-        signupButton = binding.introSignupButton
-
+            FragmentLoginBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 
@@ -35,9 +38,6 @@ class IntroFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            loginButton.setOnClickListener {
-
-            }
         }
     }
 
