@@ -32,9 +32,11 @@ class IntroFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
+/*
             loginButton.setOnClickListener {
                 Toast.makeText(activity, "Login", Toast.LENGTH_SHORT).show()
             }
+*/
         }
     }
 
