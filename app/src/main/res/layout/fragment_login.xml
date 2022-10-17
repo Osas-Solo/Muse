@@ -41,6 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
+                android:inputType="textEmailAddress"
                 android:layout_marginBottom="10dp"
                 android:hint="@string/email_prompt_text"/>
 
@@ -72,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/login_button_text"
                 android:layout_gravity="center"
-                android:layout_marginBottom="20dp"/>
+                android:layout_marginBottom="30dp"/>
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/login_forgot_password_text_view"

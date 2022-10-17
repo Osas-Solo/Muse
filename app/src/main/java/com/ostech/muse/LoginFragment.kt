@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckedTextView
 import androidx.appcompat.widget.AppCompatEditText
-import com.ostech.muse.databinding.FragmentIntroBinding
 import com.ostech.muse.databinding.FragmentLoginBinding
 
 class LoginFragment : Fragment() {
@@ -36,6 +35,9 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val fragmentTitle = getString(R.string.app_name) + " - Login"
+        activity?.title = fragmentTitle
 
         binding.apply {
         }
