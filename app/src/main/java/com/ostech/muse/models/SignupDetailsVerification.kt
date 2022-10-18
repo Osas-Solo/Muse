@@ -26,9 +26,11 @@ class SignupDetailsVerification {
             return digitRegex.containsMatchIn(password)
         }
 
-        fun isPasswordRequiredLength(password: String): Boolean {
-            return password.length in 8..20
-        }
+        fun isPasswordRequiredLength(password: String): Boolean =
+            password.length in 8..20
+
+        fun isPasswordConfirmed(password: String, passwordConfirmer: String) =
+            password == passwordConfirmer
 
         fun isNameValid(name: String): Boolean {
             val nameRegex = Regex("^[A-Za-z]+\$")
@@ -36,9 +38,8 @@ class SignupDetailsVerification {
             return nameRegex.matches(name)
         }
 
-        fun isGenderValid(gender: Char): Boolean {
-            return gender.uppercaseChar() == 'M' || gender.uppercaseChar() == 'F'
-        }
+        fun isGenderValid(gender: Char): Boolean =
+            gender.uppercaseChar() == 'M' || gender.uppercaseChar() == 'F'
 
         fun isPhoneNumberValid(phoneNumber: String): Boolean {
             val phoneNumberRegex = Regex("^0[7-9][0|1][0-9]{8}\$")

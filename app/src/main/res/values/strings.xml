@@ -17,7 +17,6 @@
     <string name="confirm_password_prompt_text">Confirm Password</string>
     <string name="phone_number_prompt_text">Phone Number</string>
 
-
     <string name="login_prompt_text">Login to your \nAccount</string>
     <string name="signup_prompt_text">Create your \nAccount</string>
     <string name="forgot_password_prompt_text">Forgot password?</string>
