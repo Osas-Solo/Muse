@@ -9,9 +9,10 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckedTextView
 import androidx.appcompat.widget.AppCompatEditText
 import com.ostech.muse.databinding.FragmentLoginBinding
+import com.ostech.muse.databinding.FragmentSignupBinding
 
 class SignupFragment : Fragment() {
-    private var _binding: FragmentLoginBinding? = null
+    private var _binding: FragmentSignupBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
@@ -29,7 +30,7 @@ class SignupFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding =
-            FragmentLoginBinding.inflate(layoutInflater, container, false)
+            FragmentSignupBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
 

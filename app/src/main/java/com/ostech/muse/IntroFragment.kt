@@ -36,10 +36,23 @@ class IntroFragment: Fragment() {
 
         binding.apply {
             loginButton.setOnClickListener {
-                val loginIntent = Intent(context, LoginActivity::class.java)
-                startActivity(loginIntent)
+                launchLoginActivity()
+            }
+
+            signupButton.setOnClickListener {
+                launchSignupActivity()
             }
         }
+    }
+
+    private fun launchSignupActivity() {
+        val signupIntent = Intent(context, SignupActivity::class.java)
+        startActivity(signupIntent)
+    }
+
+    private fun launchLoginActivity() {
+        val loginIntent = Intent(context, LoginActivity::class.java)
+        startActivity(loginIntent)
     }
 
     override fun onDestroyView() {

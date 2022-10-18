@@ -22,4 +22,30 @@
     <string name="forgot_password_prompt_text">Forgot password?</string>
     <string name="signup_alternative_option_text">Don\'t have an account? Signup</string>
     <string name="login_alternative_option_text">Already have an account? Login</string>
+
+    <string name="valid_first_name_hint_text">First name is valid</string>
+    <string name="valid_last_name_hint_text">Last name is valid</string>
+    <string name="valid_email_address_hint_text">Email address is valid</string>
+    <string name="confirmed_password_hint_text">Password has been confirmed</string>
+    <string name="valid_phone_number_hint_text">Phone number is valid</string>
+    <string name="valid_gender_hint_text">A gender has been selected</string>
+
+    <string name="invalid_first_name_hint_text">
+        Please enter your first name. \nFirst name can only contain letters
+    </string>
+    <string name="invalid_last_name_hint_text">
+        Please enter your last name. \nLast name can only contain letters
+    </string>
+    <string name="invalid_email_address_hint_text">Please enter a valid email address</string>
+    <string name="uppercase_password_hint_text">Password should have at least one uppercase</string>
+    <string name="lowercase_password_hint_text">Password should have at least one lowercase</string>
+    <string name="digit_password_hint_text">Password should have at least one digit</string>
+    <string name="password_length_hint_text">
+        Password should have at least 8 characters and cannot have more than 20 characters
+    </string>
+    <string name="unconfirmed_password_hint_text">Please re-enter your password</string>
+    <string name="invalid_phone_number_hint_text">
+        Please enter a valid phone number. A valid phone number should follow the format: 08012345678
+    </string>
+    <string name="invalid_gender_hint_text">Please select your gender</string>
 </resources>

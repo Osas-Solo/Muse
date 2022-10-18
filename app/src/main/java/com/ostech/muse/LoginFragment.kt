@@ -1,5 +1,6 @@
 package com.ostech.muse
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -40,7 +41,15 @@ class LoginFragment : Fragment() {
         activity?.title = fragmentTitle
 
         binding.apply {
+            signupAlternativeTextView.setOnClickListener {
+                launchSignupActivity()
+            }
         }
+    }
+
+    private fun launchSignupActivity() {
+        val signupIntent = Intent(context, SignupActivity::class.java)
+        startActivity(signupIntent)
     }
 
     override fun onDestroyView() {
