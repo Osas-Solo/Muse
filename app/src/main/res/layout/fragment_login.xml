@@ -91,6 +91,7 @@
             android:text="@string/signup_alternative_option_text"
             android:gravity="center"
             android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
             app:layout_constraintTop_toBottomOf="@+id/login_button_layout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

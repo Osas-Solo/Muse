@@ -15,8 +15,8 @@ class IntroFragment: Fragment() {
         get() = checkNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
         }
-    private lateinit var loginButton: AppCompatButton
-    private lateinit var signupButton: AppCompatButton
+    private lateinit var introLoginButton: AppCompatButton
+    private lateinit var introSignupButton: AppCompatButton
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,8 +25,6 @@ class IntroFragment: Fragment() {
     ): View? {
         _binding =
             FragmentIntroBinding.inflate(layoutInflater, container, false)
-        loginButton = binding.introLoginButton
-        signupButton = binding.introSignupButton
 
         return binding.root
     }
@@ -35,11 +33,11 @@ class IntroFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            loginButton.setOnClickListener {
+            introLoginButton.setOnClickListener {
                 launchLoginActivity()
             }
 
-            signupButton.setOnClickListener {
+            introSignupButton.setOnClickListener {
                 launchSignupActivity()
             }
         }

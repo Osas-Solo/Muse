@@ -8,13 +8,13 @@ class SignupDetailsVerification {
             return emailAddressRegex.matches(emailAddress)
         }
 
-        fun doesPasswordContainUpperCase(password: String): Boolean {
+        fun doesPasswordContainUppercase(password: String): Boolean {
             val upperCaseRegex = Regex("[A-Z]")
 
             return upperCaseRegex.containsMatchIn(password)
         }
 
-        fun doesPasswordContainLowerCase(password: String): Boolean {
+        fun doesPasswordContainLowercase(password: String): Boolean {
             val lowerCaseRegex = Regex("[a-z]")
 
             return lowerCaseRegex.containsMatchIn(password)
@@ -30,7 +30,7 @@ class SignupDetailsVerification {
             password.length in 8..20
 
         fun isPasswordConfirmed(password: String, passwordConfirmer: String) =
-            password == passwordConfirmer
+            password == passwordConfirmer && !password.isEmpty()  && !passwordConfirmer.isEmpty()
 
         fun isNameValid(name: String): Boolean {
             val nameRegex = Regex("^[A-Za-z]+\$")

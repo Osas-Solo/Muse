@@ -18,8 +18,8 @@ class LoginFragment : Fragment() {
             "Cannot access binding because it is null. Is the view visible?"
         }
 
-    private lateinit var emailEditText: AppCompatEditText
-    private lateinit var passwordEditText: AppCompatEditText
+    private lateinit var loginEmailEditText: AppCompatEditText
+    private lateinit var loginPasswordEditText: AppCompatEditText
     private lateinit var loginButton: AppCompatButton
     private lateinit var forgotPasswordTextView: AppCompatCheckedTextView
     private lateinit var signupAlternativeTextView: AppCompatCheckedTextView
