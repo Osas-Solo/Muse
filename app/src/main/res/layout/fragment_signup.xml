@@ -40,30 +40,67 @@
                 android:id="@+id/signup_email_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
                 android:hint="@string/email_prompt_text"
                 android:inputType="textEmailAddress"
                 android:minHeight="48dp"
                 android:padding="10dp" />
 
             <androidx.appcompat.widget.AppCompatCheckBox
-                android:id="@+id/signup_email_checked_text_view"
+                android:id="@+id/signup_email_check_box"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:layout_marginBottom="20dp"
                 android:text="@string/invalid_email_address_hint_text"
-                android:clickable="false"/>
+                android:clickable="false"
+                android:enabled="false"/>
 
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/signup_password_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
                 android:hint="@string/password_prompt_text"
                 android:inputType="textPassword"
                 android:minHeight="48dp"
                 android:padding="10dp" />
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/signup_uppercase_password_check_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/uppercase_password_hint_text"
+                android:clickable="false"
+                android:enabled="false"/>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/signup_lowercase_password_check_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/lowercase_password_hint_text"
+                android:clickable="false"
+                android:enabled="false"/>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/signup_digit_password_check_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/digit_password_hint_text"
+                android:clickable="false"
+                android:enabled="false"/>
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/signup_password_length_check_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/password_length_hint_text"
+                android:clickable="false"
+                android:enabled="false"/>
+
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatButton
