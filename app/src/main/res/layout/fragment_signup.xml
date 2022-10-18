@@ -37,6 +37,66 @@
             app:layout_constraintBottom_toTopOf="@+id/signup_button">
 
             <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/signup_first_name_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/first_name_prompt_text"
+                android:inputType="textPersonName"
+                android:minHeight="48dp"
+                android:padding="10dp" />
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/signup_first_name_check_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textAlignment="center"
+                android:layout_marginBottom="20dp"
+                android:text="@string/invalid_first_name_hint_text"
+                android:clickable="false"
+                android:enabled="false"/>
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/signup_last_name_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/last_name_prompt_text"
+                android:inputType="textPersonName"
+                android:minHeight="48dp"
+                android:padding="10dp" />
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/signup_last_name_check_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textAlignment="center"
+                android:layout_marginBottom="20dp"
+                android:text="@string/invalid_last_name_hint_text"
+                android:clickable="false"
+                android:enabled="false"/>
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/signup_gender_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/genders"
+                android:inputType="textPersonName"
+                android:minHeight="48dp"
+                android:padding="10dp" />
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/signup_gender_check_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textAlignment="center"
+                android:layout_marginBottom="20dp"
+                android:text="@string/invalid_gender_hint_text"
+                android:clickable="false"
+                android:enabled="false"/>
+
+            <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/signup_email_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -50,6 +110,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
+                android:textAlignment="center"
                 android:layout_marginBottom="20dp"
                 android:text="@string/invalid_email_address_hint_text"
                 android:clickable="false"
@@ -69,6 +130,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
+                android:textAlignment="center"
                 android:text="@string/uppercase_password_hint_text"
                 android:clickable="false"
                 android:enabled="false"/>
@@ -78,6 +140,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
+                android:textAlignment="center"
                 android:text="@string/lowercase_password_hint_text"
                 android:clickable="false"
                 android:enabled="false"/>
@@ -87,6 +150,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
+                android:textAlignment="center"
                 android:text="@string/digit_password_hint_text"
                 android:clickable="false"
                 android:enabled="false"/>
@@ -96,8 +160,47 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
+                android:textAlignment="center"
                 android:layout_marginBottom="20dp"
                 android:text="@string/password_length_hint_text"
+                android:clickable="false"
+                android:enabled="false"/>
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/signup_password_confirmer_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/confirm_password_prompt_text"
+                android:inputType="textPassword"
+                android:minHeight="48dp"
+                android:padding="10dp" />
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/signup_password_confirmer_check_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textAlignment="center"
+                android:text="@string/unconfirmed_password_hint_text"
+                android:clickable="false"
+                android:enabled="false"/>
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/signup_phone_number_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/phone_number_prompt_text"
+                android:inputType="phone"
+                android:minHeight="48dp"
+                android:padding="10dp" />
+
+            <androidx.appcompat.widget.AppCompatCheckBox
+                android:id="@+id/signup_phone_number_check_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textAlignment="center"
+                android:text="@string/invalid_phone_number_hint_text"
                 android:clickable="false"
                 android:enabled="false"/>
 

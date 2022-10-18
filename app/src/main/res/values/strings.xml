@@ -6,7 +6,7 @@
     <string name="about_menu_item_title">About</string>
     <string name="help_menu_item_title">Help</string>
 
-    <string name="intro_screen_text">Hello, trying to recognise some music files?</string>
+    <string name="intro_screen_text">Hello, trying to recognise \nsome music files?</string>
     <string name="login_button_text">Login</string>
     <string name="signup_button_text">Signup</string>
 
@@ -16,6 +16,12 @@
     <string name="last_name_prompt_text">Last Name</string>
     <string name="confirm_password_prompt_text">Confirm Password</string>
     <string name="phone_number_prompt_text">Phone Number</string>
+    <string name="gender_prompt_text">Phone Number</string>
+    <string-array name="genders">
+        <item></item>
+        <item>M</item>
+        <item>F</item>
+    </string-array>
 
     <string name="login_prompt_text">Login to your \nAccount</string>
     <string name="signup_prompt_text">Create your \nAccount</string>
@@ -31,10 +37,10 @@
     <string name="valid_gender_hint_text">A gender has been selected</string>
 
     <string name="invalid_first_name_hint_text">
-        Please enter your first name. \nFirst name can only contain letters
+        Please enter your first name. \nFirst names can only contain letters
     </string>
     <string name="invalid_last_name_hint_text">
-        Please enter your last name. \nLast name can only contain letters
+        Please enter your last name. \nLast names can only contain letters
     </string>
     <string name="invalid_email_address_hint_text">Please enter a valid email address</string>
     <string name="uppercase_password_hint_text">Password should have at least one uppercase</string>
@@ -45,7 +51,7 @@
     </string>
     <string name="unconfirmed_password_hint_text">Please re-enter your password</string>
     <string name="invalid_phone_number_hint_text">
-        Please enter a valid phone number. A valid phone number should follow the format: 08012345678
+        Please enter a valid phone number. \nA valid phone number should follow the format: 08012345678
     </string>
     <string name="invalid_gender_hint_text">Please select your gender</string>
 </resources>
