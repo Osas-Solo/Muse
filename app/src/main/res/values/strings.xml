@@ -54,4 +54,7 @@
         Please enter a valid phone number. \nA valid phone number should follow the format: 08012345678
     </string>
     <string name="invalid_gender_hint_text">Please select your gender</string>
+    
+    <string name="signup_progress_text">Attempting signup,\nplease wait</string>
+    <string name="login_progress_text">Attempting to login,\nplease wait</string>
 </resources>

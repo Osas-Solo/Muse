@@ -2,20 +2,31 @@ package com.ostech.muse
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Adapter
 import android.widget.AdapterView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatCheckedTextView
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.liveData
+import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.databinding.FragmentSignupBinding
 import com.ostech.muse.models.SignupDetailsVerification
+import com.ostech.muse.models.User
+import retrofit2.Call
+import retrofit2.Response
 
 class SignupFragment : Fragment() {
     private var _binding: FragmentSignupBinding? = null
@@ -42,6 +53,7 @@ class SignupFragment : Fragment() {
     private lateinit var signupPhoneNumberEditText: AppCompatEditText
     private lateinit var signupPhoneNumberCheckBox: AppCompatCheckBox
     private lateinit var signupButton: AppCompatButton
+    private lateinit var signupProgressLayout: LinearLayout
     private lateinit var loginAlternativeTextView: AppCompatCheckedTextView
 
     override fun onCreateView(
@@ -69,6 +81,7 @@ class SignupFragment : Fragment() {
         signupPasswordConfirmerCheckBox = binding.signupPasswordConfirmerCheckBox
         signupPhoneNumberEditText = binding.signupPhoneNumberEditText
         signupPhoneNumberCheckBox = binding.signupPhoneNumberCheckBox
+        signupProgressLayout = binding.signupProgressLayout
 
         return binding.root
     }
@@ -117,6 +130,10 @@ class SignupFragment : Fragment() {
 
             signupPhoneNumberEditText.doOnTextChanged { text, start, before, count ->
                 validatePhoneNumber()
+            }
+
+            signupButton.setOnClickListener {
+                signupUser()
             }
 
             loginAlternativeTextView.setOnClickListener {
@@ -279,6 +296,38 @@ class SignupFragment : Fragment() {
             signupPhoneNumberCheckBox.isChecked = false
             signupPhoneNumberCheckBox.isEnabled = false
         }
+    }
+
+    private fun signupUser() {
+        val firstName = signupFirstNameEditText.text.toString()
+        val lastName = signupLastNameEditText.text.toString()
+        val gender = if (signupGenderSpinner.selectedItem.toString().isEmpty()) ' ' else
+            signupGenderSpinner.selectedItem.toString()[0]
+        val emailAddress = signupEmailEditText.text.toString()
+        val password = signupPasswordEditText.text.toString()
+        val passwordConfirmer = signupPasswordConfirmerEditText.text.toString()
+        val phoneNumber = signupPhoneNumberEditText.text.toString()
+
+        signupProgressLayout.visibility = View.VISIBLE
+
+        val signupResponse: LiveData<Call<User>> = liveData {
+            val response = MuseAPIBuilder.museAPIService.signupUser(
+                firstName,
+                lastName,
+                gender,
+                emailAddress,
+                password,
+                passwordConfirmer,
+                phoneNumber)
+            emit(response)
+        }
+
+        signupResponse.observe(viewLifecycleOwner, Observer {
+            if (it.isCanceled) {
+                Toast.makeText(context, "Signup request was cancelled", Toast.LENGTH_SHORT).show()
+            }
+            Log.i("SignupActivity", "Signup response: ${it}")
+        })
     }
 
     override fun onDestroyView() {

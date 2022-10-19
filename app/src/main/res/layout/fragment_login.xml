@@ -86,7 +86,7 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/signup_alternative_text_view"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/signup_alternative_option_text"
             android:gravity="center"

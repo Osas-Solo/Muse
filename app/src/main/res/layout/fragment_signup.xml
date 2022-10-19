@@ -212,21 +212,50 @@
             android:text="@string/signup_button_text"
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
-            android:layout_marginBottom="30dp"
             app:layout_constraintTop_toBottomOf="@+id/signup_inputs_layout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/login_alternative_text_view"/>
+            app:layout_constraintBottom_toTopOf="@id/signup_progress_layout"/>
+
+        <LinearLayout
+            android:id="@+id/signup_progress_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="invisible"
+            android:layout_marginBottom="30dp"
+            app:layout_constraintTop_toBottomOf="@+id/signup_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/login_alternative_text_view">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/signup_progress_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/signup_progress_text"
+                android:textAlignment="center"
+                android:padding="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center"/>
+
+            <ProgressBar
+                android:id="@+id/signup_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:indeterminate="true"/>
+        </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/login_alternative_text_view"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/login_alternative_option_text"
             android:gravity="center"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            app:layout_constraintTop_toBottomOf="@+id/signup_button"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"
+            app:layout_constraintTop_toBottomOf="@+id/signup_progress_layout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
