@@ -22,6 +22,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import com.ostech.muse.api.MuseAPIBuilder
+import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentSignupBinding
 import com.ostech.muse.models.SignupDetailsVerification
 import com.ostech.muse.models.User
@@ -52,9 +53,12 @@ class SignupFragment : Fragment() {
     private lateinit var signupPasswordConfirmerCheckBox: AppCompatCheckBox
     private lateinit var signupPhoneNumberEditText: AppCompatEditText
     private lateinit var signupPhoneNumberCheckBox: AppCompatCheckBox
+
     private lateinit var signupButton: AppCompatButton
     private lateinit var signupProgressLayout: LinearLayout
     private lateinit var loginAlternativeTextView: AppCompatCheckedTextView
+
+    private lateinit var signedupUser: User
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -310,24 +314,45 @@ class SignupFragment : Fragment() {
 
         signupProgressLayout.visibility = View.VISIBLE
 
-        val signupResponse: LiveData<Call<User>> = liveData {
-            val response = MuseAPIBuilder.museAPIService.signupUser(
-                firstName,
-                lastName,
-                gender,
-                emailAddress,
-                password,
-                passwordConfirmer,
-                phoneNumber)
-            emit(response)
-        }
-
-        signupResponse.observe(viewLifecycleOwner, Observer {
-            if (it.isCanceled) {
-                Toast.makeText(context, "Signup request was cancelled", Toast.LENGTH_SHORT).show()
+        if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
+            Toast.makeText(context, "Please ensure you are connected to the internet while signing up",
+                Toast.LENGTH_LONG).show()
+        } else {
+            val signupResponse: LiveData<Response<String>> = liveData {
+                val response = MuseAPIBuilder.museAPIService.signupUser(
+                    firstName,
+                    lastName,
+                    gender,
+                    emailAddress,
+                    password,
+                    passwordConfirmer,
+                    phoneNumber)
+                emit(response)
             }
-            Log.i("SignupActivity", "Signup response: ${it}")
-        })
+
+            signupResponse.observe(viewLifecycleOwner, Observer {
+                if (it.isSuccessful) {
+                    Toast.makeText(context, "Signup request was cancelled", Toast.LENGTH_SHORT).show()
+                } else {
+                    Log.i(tag, "Signup response: ${it.errorBody()?.string()}")
+                }
+
+                signupProgressLayout.visibility = View.INVISIBLE
+            })
+        }
+    }
+
+    private fun areSignupDetailsValid(): Boolean {
+        return signupFirstNameCheckBox.isChecked &&
+                signupLastNameCheckBox.isChecked &&
+                signupEmailCheckBox.isChecked &&
+                signupGenderCheckBox.isChecked &&
+                signupUppercasePasswordCheckBox.isChecked &&
+                signupLowerCasePasswordCheckBox.isChecked &&
+                signupDigitPasswordCheckBox.isChecked &&
+                signupPasswordLengthCheckBox.isChecked &&
+                signupPasswordConfirmerCheckBox.isChecked &&
+                signupPhoneNumberCheckBox.isChecked
     }
 
     override fun onDestroyView() {
