@@ -20,6 +20,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentSignupBinding
@@ -348,9 +350,9 @@ class SignupFragment : Fragment() {
 
             signupResponse.observe(viewLifecycleOwner, Observer {
                 if (it.isSuccessful) {
-                    Log.i(tag, "Signup response: ${it.raw()}")
+                    Log.i(tag, "Signup response: ${it.body()}")
 
-                    val userJSON = JSONObject(it.raw().toString())
+                    val userJSON = JSONObject(it.body().toString())
                     val signupDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(userJSON.getString("signupDate"))
                     signedupUser = User(
                         userJSON.getInt("id"),
@@ -372,7 +374,7 @@ class SignupFragment : Fragment() {
 
                 } else {
                     Log.i(tag, "Signup response: ${it.errorBody()?.string()}")
-                    val errorJSON = JSONKObject(it.errorBody()?.string())
+                    val errorJSON = JSONObject(it.errorBody()?.string())
                     var errorMessage = errorJSON.getString("error")
 
                     if (errorMessage.contains("Sorry", ignoreCase = true)) {
