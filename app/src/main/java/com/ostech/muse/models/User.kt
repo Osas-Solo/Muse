@@ -9,5 +9,5 @@ data class User(
     val gender: String,
     val phoneNumber: String,
     val signupDate: Date,
-    val currentSubscription: Subscription
+    val currentSubscription: Subscription?
 )

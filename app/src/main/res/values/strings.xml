@@ -55,6 +55,12 @@
     </string>
     <string name="invalid_gender_hint_text">Please select your gender</string>
     
-    <string name="signup_progress_text">Attempting signup,\nplease wait</string>
+    <string name="signup_progress_text">Attempting to signup,\nplease wait</string>
     <string name="login_progress_text">Attempting to login,\nplease wait</string>
+
+    <string name="no_internet_connection_message">
+        Please ensure you are connected to the internet\nwhile trying to sign up
+    </string>
+    
+    <string name="signup_success_message">Signup was successful. You may now proceed to login</string>
 </resources>

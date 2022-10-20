@@ -7,11 +7,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
 import android.widget.AdapterView
 import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatCheckedTextView
@@ -21,13 +19,16 @@ import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
+import com.google.android.material.snackbar.Snackbar
 import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentSignupBinding
 import com.ostech.muse.models.SignupDetailsVerification
 import com.ostech.muse.models.User
-import retrofit2.Call
+import org.json.JSONObject
 import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.util.*
 
 class SignupFragment : Fragment() {
     private var _binding: FragmentSignupBinding? = null
@@ -85,6 +86,7 @@ class SignupFragment : Fragment() {
         signupPasswordConfirmerCheckBox = binding.signupPasswordConfirmerCheckBox
         signupPhoneNumberEditText = binding.signupPhoneNumberEditText
         signupPhoneNumberCheckBox = binding.signupPhoneNumberCheckBox
+        signupButton = binding.signupButton
         signupProgressLayout = binding.signupProgressLayout
 
         return binding.root
@@ -99,10 +101,12 @@ class SignupFragment : Fragment() {
         binding.apply {
             signupFirstNameEditText.doOnTextChanged { text, start, before, count ->
                 validateFirstName()
+                toggleSignupButton()
             }
 
             signupLastNameEditText.doOnTextChanged { text, start, before, count ->
                 validateLastName()
+                toggleSignupButton()
             }
 
             signupGenderSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -113,6 +117,7 @@ class SignupFragment : Fragment() {
                     id: Long
                 ) {
                     validateGender()
+                    toggleSignupButton()
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -121,19 +126,23 @@ class SignupFragment : Fragment() {
 
             signupEmailEditText.doOnTextChanged { text, start, before, count ->
                 validateEmailAddress()
+                toggleSignupButton()
             }
 
             signupPasswordEditText.doOnTextChanged { text, start, before, count ->
                 validatePassword()
                 confirmPassword()
+                toggleSignupButton()
             }
 
             signupPasswordConfirmerEditText.doOnTextChanged { text, start, before, count ->
                 confirmPassword()
+                toggleSignupButton()
             }
 
             signupPhoneNumberEditText.doOnTextChanged { text, start, before, count ->
                 validatePhoneNumber()
+                toggleSignupButton()
             }
 
             signupButton.setOnClickListener {
@@ -315,8 +324,15 @@ class SignupFragment : Fragment() {
         signupProgressLayout.visibility = View.VISIBLE
 
         if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
-            Toast.makeText(context, "Please ensure you are connected to the internet while signing up",
-                Toast.LENGTH_LONG).show()
+            val noNetworkSnackbar = view?.let {
+                Snackbar.make(
+                    it,
+                    getText(R.string.no_internet_connection_message),
+                    Snackbar.LENGTH_SHORT
+                )
+            }
+
+            noNetworkSnackbar?.show()
         } else {
             val signupResponse: LiveData<Response<String>> = liveData {
                 val response = MuseAPIBuilder.museAPIService.signupUser(
@@ -332,14 +348,53 @@ class SignupFragment : Fragment() {
 
             signupResponse.observe(viewLifecycleOwner, Observer {
                 if (it.isSuccessful) {
-                    Toast.makeText(context, "Signup request was cancelled", Toast.LENGTH_SHORT).show()
+                    Log.i(tag, "Signup response: ${it.raw()}")
+
+                    val userJSON = JSONObject(it.raw().toString())
+                    val signupDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(userJSON.getString("signupDate"))
+                    signedupUser = User(
+                        userJSON.getInt("id"),
+                        userJSON.getString("emailAddress"),
+                        userJSON.getString("fullName"),
+                        userJSON.getString("gender"),
+                        userJSON.getString("phoneNumber"),
+                        signupDate,
+                        null
+                    )
+
+                    Log.i(tag, "Signed up user: $signedupUser")
+
+                    context?.let { it1 ->
+                        AlertDialog.Builder(it1)
+                            .setMessage(getText(R.string.signup_success_message))
+                            .setPositiveButton("OK") { _, _ -> launchLoginActivity() }
+                    }
+
                 } else {
                     Log.i(tag, "Signup response: ${it.errorBody()?.string()}")
+                    val errorJSON = JSONKObject(it.errorBody()?.string())
+                    var errorMessage = errorJSON.getString("error")
+
+                    if (errorMessage.contains("Sorry", ignoreCase = true)) {
+                        val existingUserSnackbar = view?.let {
+                            Snackbar.make(
+                                it,
+                                errorMessage,
+                                Snackbar.LENGTH_SHORT
+                            )
+                        }
+
+                        existingUserSnackbar?.show()
+                    }
                 }
 
                 signupProgressLayout.visibility = View.INVISIBLE
             })
         }
+    }
+
+    private fun toggleSignupButton() {
+        signupButton.isEnabled = areSignupDetailsValid()
     }
 
     private fun areSignupDetailsValid(): Boolean {
