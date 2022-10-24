@@ -27,6 +27,7 @@ import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentSignupBinding
 import com.ostech.muse.models.SignupDetailsVerification
 import com.ostech.muse.models.User
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.json.JSONObject
 import retrofit2.Response
 import java.text.SimpleDateFormat
@@ -350,9 +351,10 @@ class SignupFragment : Fragment() {
 
             signupResponse.observe(viewLifecycleOwner, Observer {
                 if (it.isSuccessful) {
-                    Log.i(tag, "Signup response: ${it.body()}")
+                    val successJSON = it.raw().message
+                    Log.i(tag, "Signup response: $successJSON")
 
-                    val userJSON = JSONObject(it.body().toString())
+                    val userJSON = JSONObject(successJSON).getJSONObject("user")
                     val signupDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(userJSON.getString("signupDate"))
                     signedupUser = User(
                         userJSON.getInt("id"),
@@ -373,8 +375,9 @@ class SignupFragment : Fragment() {
                     }
 
                 } else {
-                    Log.i(tag, "Signup response: ${it.errorBody()?.string()}")
-                    val errorJSON = JSONObject(it.errorBody()?.string())
+                    val errorJSONString = it.errorBody()?.string()
+                    Log.i(tag, "Signup response: $errorJSONString")
+                    val errorJSON = JSONObject(errorJSONString)
                     var errorMessage = errorJSON.getString("error")
 
                     if (errorMessage.contains("Sorry", ignoreCase = true)) {
