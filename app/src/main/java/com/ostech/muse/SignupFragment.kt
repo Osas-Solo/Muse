@@ -27,7 +27,7 @@ import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentSignupBinding
 import com.ostech.muse.models.SignupDetailsVerification
 import com.ostech.muse.models.User
-import okhttp3.ResponseBody.Companion.toResponseBody
+import com.ostech.muse.models.UserSignupResponse
 import org.json.JSONObject
 import retrofit2.Response
 import java.text.SimpleDateFormat
@@ -102,12 +102,12 @@ class SignupFragment : Fragment() {
         activity?.title = fragmentTitle
 
         binding.apply {
-            signupFirstNameEditText.doOnTextChanged { text, start, before, count ->
+            signupFirstNameEditText.doOnTextChanged { _, _, _, _ ->
                 validateFirstName()
                 toggleSignupButton()
             }
 
-            signupLastNameEditText.doOnTextChanged { text, start, before, count ->
+            signupLastNameEditText.doOnTextChanged { _, _, _, _ ->
                 validateLastName()
                 toggleSignupButton()
             }
@@ -127,23 +127,23 @@ class SignupFragment : Fragment() {
                 }
             }
 
-            signupEmailEditText.doOnTextChanged { text, start, before, count ->
+            signupEmailEditText.doOnTextChanged { _, _, _, _ ->
                 validateEmailAddress()
                 toggleSignupButton()
             }
 
-            signupPasswordEditText.doOnTextChanged { text, start, before, count ->
+            signupPasswordEditText.doOnTextChanged { _, _, _, _ ->
                 validatePassword()
                 confirmPassword()
                 toggleSignupButton()
             }
 
-            signupPasswordConfirmerEditText.doOnTextChanged { text, start, before, count ->
+            signupPasswordConfirmerEditText.doOnTextChanged { _, _, _, _ ->
                 confirmPassword()
                 toggleSignupButton()
             }
 
-            signupPhoneNumberEditText.doOnTextChanged { text, start, before, count ->
+            signupPhoneNumberEditText.doOnTextChanged { _, _, _, _ ->
                 validatePhoneNumber()
                 toggleSignupButton()
             }
@@ -331,13 +331,13 @@ class SignupFragment : Fragment() {
                 Snackbar.make(
                     it,
                     getText(R.string.no_internet_connection_message),
-                    Snackbar.LENGTH_SHORT
+                    Snackbar.LENGTH_LONG
                 )
             }
 
             noNetworkSnackbar?.show()
         } else {
-            val signupResponse: LiveData<Response<String>> = liveData {
+            val signupResponse: LiveData<Response<UserSignupResponse>> = liveData {
                 val response = MuseAPIBuilder.museAPIService.signupUser(
                     firstName,
                     lastName,
@@ -351,27 +351,17 @@ class SignupFragment : Fragment() {
 
             signupResponse.observe(viewLifecycleOwner, Observer {
                 if (it.isSuccessful) {
-                    val successJSON = it.raw().message
+                    val successJSON = it.body()
                     Log.i(tag, "Signup response: $successJSON")
 
-                    val userJSON = JSONObject(successJSON).getJSONObject("user")
-                    val signupDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(userJSON.getString("signupDate"))
-                    signedupUser = User(
-                        userJSON.getInt("id"),
-                        userJSON.getString("emailAddress"),
-                        userJSON.getString("fullName"),
-                        userJSON.getString("gender"),
-                        userJSON.getString("phoneNumber"),
-                        signupDate,
-                        null
-                    )
-
+                    signedupUser = successJSON?.user!!
                     Log.i(tag, "Signed up user: $signedupUser")
 
                     context?.let { it1 ->
                         AlertDialog.Builder(it1)
                             .setMessage(getText(R.string.signup_success_message))
                             .setPositiveButton("OK") { _, _ -> launchLoginActivity() }
+                            .show()
                     }
 
                 } else {
@@ -385,7 +375,7 @@ class SignupFragment : Fragment() {
                             Snackbar.make(
                                 it,
                                 errorMessage,
-                                Snackbar.LENGTH_SHORT
+                                Snackbar.LENGTH_LONG
                             )
                         }
 
