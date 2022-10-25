@@ -15,10 +15,10 @@ import retrofit2.http.Path
 
 interface MuseAPIInterface {
     @GET("user-api/subscription-types")
-    suspend fun getSubscriptionTypes(): Call<Array<SubscriptionType>>
+    suspend fun getSubscriptionTypes(): Response<Array<SubscriptionType>>
 
     @GET("user-api/subscription-types/{id}")
-    suspend fun getSubscriptionTypeByID(@Path(value = "id") id: Int): Call<SubscriptionType>
+    suspend fun getSubscriptionTypeByID(@Path(value = "id") id: Int): Response<SubscriptionType>
 
     @FormUrlEncoded
     @POST("user-api/users")
@@ -37,14 +37,14 @@ interface MuseAPIInterface {
     suspend fun loginUser(
         @Field("emailAddress") emailAddress: String,
         @Field("password") password: String,
-    ): Call<User>
+    ): Response<User>
 
     @GET("user-api/users/{userID}/subscriptions")
-    suspend fun getSubscriptions(@Path(value = "userID") userID: Int): Call<Array<Subscription>>
+    suspend fun getSubscriptions(@Path(value = "userID") userID: Int): Response<Array<Subscription>>
 
     @GET("user-api/users/{userID}/subscriptions/{subscriptionID}")
     suspend fun getSubscriptionByID(
         @Path(value = "userID") userID: Int,
         @Path(value = "subscriptionID") subscriptionID: Int
-    ): Call<Subscription>
+    ): Response<Subscription>
 }

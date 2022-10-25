@@ -2,7 +2,7 @@ package com.ostech.muse.models
 
 import com.google.gson.annotations.SerializedName
 
-data class UserSignupErrorResponse(
+data class ErrorResponse(
     @SerializedName("status")
     val status: Int,
     @SerializedName("message")

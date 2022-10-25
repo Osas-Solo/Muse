@@ -1,5 +1,6 @@
 package com.ostech.muse
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
@@ -20,18 +22,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import com.google.android.material.snackbar.Snackbar
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
+import com.google.gson.Gson
 import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentSignupBinding
 import com.ostech.muse.models.SignupDetailsVerification
 import com.ostech.muse.models.User
+import com.ostech.muse.models.ErrorResponse
 import com.ostech.muse.models.UserSignupResponse
-import org.json.JSONObject
 import retrofit2.Response
-import java.text.SimpleDateFormat
-import java.util.*
 
 class SignupFragment : Fragment() {
     private var _binding: FragmentSignupBinding? = null
@@ -40,6 +39,7 @@ class SignupFragment : Fragment() {
             "Cannot access binding because it is null. Is the view visible?"
         }
 
+    private lateinit var signupInputLayout: LinearLayout
     private lateinit var signupFirstNameEditText: AppCompatEditText
     private lateinit var signupFirstNameCheckBox: AppCompatCheckBox
     private lateinit var signupLastNameEditText: AppCompatEditText
@@ -72,6 +72,7 @@ class SignupFragment : Fragment() {
         _binding =
             FragmentSignupBinding.inflate(layoutInflater, container, false)
 
+        signupInputLayout = binding.signupInputsLayout
         signupFirstNameEditText = binding.signupFirstNameEditText
         signupFirstNameCheckBox = binding.signupFirstNameCheckBox
         signupLastNameEditText = binding.signupLastNameEditText
@@ -349,7 +350,7 @@ class SignupFragment : Fragment() {
                 emit(response)
             }
 
-            signupResponse.observe(viewLifecycleOwner, Observer {
+            signupResponse.observe(viewLifecycleOwner, Observer { it ->
                 if (it.isSuccessful) {
                     val successJSON = it.body()
                     Log.i(tag, "Signup response: $successJSON")
@@ -367,8 +368,8 @@ class SignupFragment : Fragment() {
                 } else {
                     val errorJSONString = it.errorBody()?.string()
                     Log.i(tag, "Signup response: $errorJSONString")
-                    val errorJSON = JSONObject(errorJSONString)
-                    var errorMessage = errorJSON.getString("error")
+                    val errorJSON = Gson().fromJson(errorJSONString, ErrorResponse::class.java)
+                    var errorMessage = errorJSON.error
 
                     if (errorMessage.contains("Sorry", ignoreCase = true)) {
                         val existingUserSnackbar = view?.let {
@@ -386,6 +387,10 @@ class SignupFragment : Fragment() {
                 signupProgressLayout.visibility = View.INVISIBLE
             })
         }
+
+        val inputMethodManager: InputMethodManager =
+            activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(signupInputLayout.windowToken, 0)
     }
 
     private fun toggleSignupButton() {
