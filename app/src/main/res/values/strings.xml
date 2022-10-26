@@ -59,8 +59,13 @@
     <string name="login_progress_text">Attempting to login,\nplease wait</string>
 
     <string name="no_internet_connection_message">
-        Please ensure you are connected to the internet\nwhile trying to sign up
+        Please ensure you are connected to the internet\nwhile trying to connect
     </string>
     
+    <string name="poor_internet_connection_message">
+        Poor internet connection detected. \nPlease retry with stronger internet connection
+    </string>
+
     <string name="signup_success_message">Signup was successful. You may now proceed to login</string>
+    <string name="login_success_message">Login was successful. You may now proceed to recognise songs</string>
 </resources>

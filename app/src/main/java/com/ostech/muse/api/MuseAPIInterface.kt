@@ -3,6 +3,7 @@ package com.ostech.muse.api
 import com.ostech.muse.models.Subscription
 import com.ostech.muse.models.SubscriptionType
 import com.ostech.muse.models.User
+import com.ostech.muse.models.UserLoginResponse
 import com.ostech.muse.models.UserSignupResponse
 import org.json.JSONObject
 import retrofit2.Call
@@ -37,7 +38,7 @@ interface MuseAPIInterface {
     suspend fun loginUser(
         @Field("emailAddress") emailAddress: String,
         @Field("password") password: String,
-    ): Response<User>
+    ): Response<UserLoginResponse>
 
     @GET("user-api/users/{userID}/subscriptions")
     suspend fun getSubscriptions(@Path(value = "userID") userID: Int): Response<Array<Subscription>>

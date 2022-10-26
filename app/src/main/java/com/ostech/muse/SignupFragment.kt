@@ -14,9 +14,9 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatCheckBox
-import androidx.appcompat.widget.AppCompatCheckedTextView
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -31,6 +31,9 @@ import com.ostech.muse.models.User
 import com.ostech.muse.models.ErrorResponse
 import com.ostech.muse.models.UserSignupResponse
 import retrofit2.Response
+import java.io.IOException
+import java.net.ConnectException
+import java.net.SocketTimeoutException
 
 class SignupFragment : Fragment() {
     private var _binding: FragmentSignupBinding? = null
@@ -60,7 +63,7 @@ class SignupFragment : Fragment() {
 
     private lateinit var signupButton: AppCompatButton
     private lateinit var signupProgressLayout: LinearLayout
-    private lateinit var loginAlternativeTextView: AppCompatCheckedTextView
+    private lateinit var loginAlternativeTextView: AppCompatTextView
 
     private lateinit var signedupUser: User
 
@@ -92,6 +95,7 @@ class SignupFragment : Fragment() {
         signupPhoneNumberCheckBox = binding.signupPhoneNumberCheckBox
         signupButton = binding.signupButton
         signupProgressLayout = binding.signupProgressLayout
+        loginAlternativeTextView = binding.loginAlternativeTextView
 
         return binding.root
     }
@@ -165,7 +169,7 @@ class SignupFragment : Fragment() {
     }
 
     private fun validateFirstName() {
-        val firstName = signupFirstNameEditText.text.toString()
+        val firstName = signupFirstNameEditText.text.toString().trim()
         val isFirstNameValid = SignupDetailsVerification.isNameValid(firstName)
 
         if (isFirstNameValid) {
@@ -180,7 +184,7 @@ class SignupFragment : Fragment() {
     }
 
     private fun validateLastName() {
-        val lastName = signupLastNameEditText.text.toString()
+        val lastName = signupLastNameEditText.text.toString().trim()
         val isLastNameValid = SignupDetailsVerification.isNameValid(lastName)
 
         if (isLastNameValid) {
@@ -195,7 +199,7 @@ class SignupFragment : Fragment() {
     }
 
     private fun validateEmailAddress() {
-        val emailAddress = signupEmailEditText.text.toString()
+        val emailAddress = signupEmailEditText.text.toString().trim()
         val isEmailAddressValid = SignupDetailsVerification.isEmailAddressValid(emailAddress)
 
         if (isEmailAddressValid) {
@@ -286,7 +290,7 @@ class SignupFragment : Fragment() {
 
     private fun confirmPassword() {
         val password = signupPasswordEditText.text.toString()
-        val passwordConfirmer = signupPasswordConfirmerEditText.text.toString()
+        val passwordConfirmer = signupPasswordConfirmerEditText.text.toString().trim()
         val isPasswordConfirmed = SignupDetailsVerification.isPasswordConfirmed(password, passwordConfirmer)
 
         if (isPasswordConfirmed) {
@@ -301,7 +305,7 @@ class SignupFragment : Fragment() {
     }
 
     private fun validatePhoneNumber() {
-        val phoneNumber = signupPhoneNumberEditText.text.toString()
+        val phoneNumber = signupPhoneNumberEditText.text.toString().trim()
         val isPhoneNumberValid = SignupDetailsVerification.isPhoneNumberValid(phoneNumber)
 
         if (isPhoneNumberValid) {
@@ -316,18 +320,20 @@ class SignupFragment : Fragment() {
     }
 
     private fun signupUser() {
-        val firstName = signupFirstNameEditText.text.toString()
-        val lastName = signupLastNameEditText.text.toString()
+        val firstName = signupFirstNameEditText.text.toString().trim()
+        val lastName = signupLastNameEditText.text.toString().trim()
         val gender = if (signupGenderSpinner.selectedItem.toString().isEmpty()) ' ' else
             signupGenderSpinner.selectedItem.toString()[0]
-        val emailAddress = signupEmailEditText.text.toString()
-        val password = signupPasswordEditText.text.toString()
-        val passwordConfirmer = signupPasswordConfirmerEditText.text.toString()
-        val phoneNumber = signupPhoneNumberEditText.text.toString()
+        val emailAddress = signupEmailEditText.text.toString().trim()
+        val password = signupPasswordEditText.text.toString().trim()
+        val passwordConfirmer = signupPasswordConfirmerEditText.text.toString().trim()
+        val phoneNumber = signupPhoneNumberEditText.text.toString().trim()
 
         signupProgressLayout.visibility = View.VISIBLE
 
         if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
+            signupProgressLayout.visibility = View.INVISIBLE
+
             val noNetworkSnackbar = view?.let {
                 Snackbar.make(
                     it,
@@ -338,54 +344,67 @@ class SignupFragment : Fragment() {
 
             noNetworkSnackbar?.show()
         } else {
-            val signupResponse: LiveData<Response<UserSignupResponse>> = liveData {
-                val response = MuseAPIBuilder.museAPIService.signupUser(
-                    firstName,
-                    lastName,
-                    gender,
-                    emailAddress,
-                    password,
-                    passwordConfirmer,
-                    phoneNumber)
-                emit(response)
-            }
-
-            signupResponse.observe(viewLifecycleOwner, Observer { it ->
-                if (it.isSuccessful) {
-                    val successJSON = it.body()
-                    Log.i(tag, "Signup response: $successJSON")
-
-                    signedupUser = successJSON?.user!!
-                    Log.i(tag, "Signed up user: $signedupUser")
-
-                    context?.let { it1 ->
-                        AlertDialog.Builder(it1)
-                            .setMessage(getText(R.string.signup_success_message))
-                            .setPositiveButton("OK") { _, _ -> launchLoginActivity() }
-                            .show()
-                    }
-
-                } else {
-                    val errorJSONString = it.errorBody()?.string()
-                    Log.i(tag, "Signup response: $errorJSONString")
-                    val errorJSON = Gson().fromJson(errorJSONString, ErrorResponse::class.java)
-                    var errorMessage = errorJSON.error
-
-                    if (errorMessage.contains("Sorry", ignoreCase = true)) {
-                        val existingUserSnackbar = view?.let {
-                            Snackbar.make(
-                                it,
-                                errorMessage,
-                                Snackbar.LENGTH_LONG
-                            )
-                        }
-
-                        existingUserSnackbar?.show()
-                    }
+            try {
+                val signupResponse: LiveData<Response<UserSignupResponse>> = liveData {
+                    val response = MuseAPIBuilder.museAPIService.signupUser(
+                        firstName,
+                        lastName,
+                        gender,
+                        emailAddress,
+                        password,
+                        passwordConfirmer,
+                        phoneNumber)
+                    emit(response)
                 }
 
-                signupProgressLayout.visibility = View.INVISIBLE
-            })
+                signupResponse.observe(viewLifecycleOwner, Observer { it ->
+                    if (it.isSuccessful) {
+                        val successJSON = it.body()
+                        Log.i(tag, "Signup response: $successJSON")
+
+                        signedupUser = successJSON?.user!!
+                        Log.i(tag, "Signed up user: $signedupUser")
+
+                        context?.let { it1 ->
+                            AlertDialog.Builder(it1)
+                                .setMessage(getText(R.string.signup_success_message))
+                                .setPositiveButton("OK") { _, _ -> launchLoginActivity() }
+                                .show()
+                        }
+
+                    } else {
+                        val errorJSONString = it.errorBody()?.string()
+                        Log.i(tag, "Signup response: $errorJSONString")
+                        val errorJSON = Gson().fromJson(errorJSONString, ErrorResponse::class.java)
+                        var errorMessage = errorJSON.error
+
+                        if (errorMessage.contains("Sorry", ignoreCase = true)) {
+                            val existingUserSnackbar = view?.let {
+                                Snackbar.make(
+                                    it,
+                                    errorMessage,
+                                    Snackbar.LENGTH_LONG
+                                )
+                            }
+
+                            existingUserSnackbar?.show()
+                        }
+                    }
+
+                    signupProgressLayout.visibility = View.INVISIBLE
+                })
+            }  catch (connectionException: IOException) {
+                Log.e(tag, "Connection exception: $connectionException")
+                val socketTimeOutSnackbar = view?.let {
+                    Snackbar.make(
+                        it,
+                        getText(R.string.poor_internet_connection_message),
+                        Snackbar.LENGTH_LONG
+                    )
+                }
+
+                socketTimeOutSnackbar?.show()
+            }
         }
 
         val inputMethodManager: InputMethodManager =
