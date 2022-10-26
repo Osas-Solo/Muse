@@ -18,7 +18,7 @@
     <string name="phone_number_prompt_text">Phone Number</string>
     <string name="gender_prompt_text">Phone Number</string>
     <string-array name="genders">
-        <item></item>
+        <item />
         <item>M</item>
         <item>F</item>
     </string-array>
@@ -59,7 +59,7 @@
     <string name="login_progress_text">Attempting to login,\nplease wait</string>
 
     <string name="no_internet_connection_message">
-        Please ensure you are connected to the internet\nwhile trying to connect
+        Please ensure you are connected to the internet\nwhile trying to %1$s
     </string>
     
     <string name="poor_internet_connection_message">

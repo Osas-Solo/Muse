@@ -1,20 +1,35 @@
 package com.ostech.muse
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.AppCompatCheckedTextView
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.liveData
+import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
+import com.ostech.muse.api.MuseAPIBuilder
+import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentLoginBinding
+import com.ostech.muse.models.ErrorResponse
 import com.ostech.muse.models.SignupDetailsVerification
 import com.ostech.muse.models.User
+import com.ostech.muse.models.UserLoginResponse
+import com.ostech.muse.session.SessionManager
+import retrofit2.Response
+import java.io.IOException
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
@@ -73,6 +88,10 @@ class LoginFragment : Fragment() {
             signupAlternativeTextView.setOnClickListener {
                 launchSignupActivity()
             }
+
+            loginButton.setOnClickListener {
+                loginUser()
+            }
         }
     }
 
@@ -87,6 +106,91 @@ class LoginFragment : Fragment() {
 
     private fun toggleLoginButton() {
          loginButton.isEnabled = isEmailAddressValid() && hasPasswordBeenEntered()
+    }
+
+    private fun loginUser() {
+        val emailAddress = loginEmailEditText.text.toString().trim()
+        val password = loginPasswordEditText.text.toString().trim()
+
+        loginProgressLayout.visibility = View.VISIBLE
+
+        if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
+            loginProgressLayout.visibility = View.INVISIBLE
+
+            val noNetworkSnackbar = view?.let {
+                Snackbar.make(
+                    it,
+                    getString(R.string.no_internet_connection_message, "login"),
+                    Snackbar.LENGTH_LONG
+                )
+            }
+
+            noNetworkSnackbar?.show()
+        } else {
+            try {
+                val loginResponse: LiveData<Response<UserLoginResponse>> = liveData {
+                    val response = MuseAPIBuilder.museAPIService.loginUser(
+                        emailAddress,
+                        password,
+                    )
+                    emit(response)
+                }
+
+                loginResponse.observe(viewLifecycleOwner, Observer { it ->
+                    if (it.isSuccessful) {
+                        val successJSON = it.body()
+                        Log.i(tag, "Login response: $successJSON")
+
+                        loggedInUser = successJSON?.user!!
+                        Log.i(tag, "Logged in user: $loggedInUser")
+
+                        val session  = SessionManager(requireContext())
+                        session.saveAuthToken(successJSON.sessionToken)
+                        session.saveUserID(loggedInUser.userID)
+
+                        context?.let { it1 ->
+                            AlertDialog.Builder(it1)
+                                .setMessage(getText(R.string.login_success_message))
+                                .setPositiveButton("OK") { _, _ -> launchSignupActivity() }
+                                .show()
+                        }
+
+                    } else {
+                        val errorJSONString = it.errorBody()?.string()
+                        Log.i(tag, "Login response: $errorJSONString")
+                        val errorJSON = Gson().fromJson(errorJSONString, ErrorResponse::class.java)
+                        var errorMessage = errorJSON.error
+
+                        val loginErrorSnackbar = view?.let {
+                            Snackbar.make(
+                                it,
+                                errorMessage,
+                                Snackbar.LENGTH_LONG
+                            )
+                        }
+
+                        loginErrorSnackbar?.show()
+                    }
+
+                    loginProgressLayout.visibility = View.INVISIBLE
+                })
+            }  catch (connectionException: IOException) {
+                Log.e(tag, "Connection exception: $connectionException")
+                val socketTimeOutSnackbar = view?.let {
+                    Snackbar.make(
+                        it,
+                        getText(R.string.poor_internet_connection_message),
+                        Snackbar.LENGTH_LONG
+                    )
+                }
+
+                socketTimeOutSnackbar?.show()
+            }
+        }
+
+        val inputMethodManager: InputMethodManager =
+            activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(loginInputLayout.windowToken, 0)
     }
 
     private fun launchSignupActivity() {

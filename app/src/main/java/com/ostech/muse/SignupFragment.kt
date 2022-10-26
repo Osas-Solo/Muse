@@ -325,8 +325,8 @@ class SignupFragment : Fragment() {
         val gender = if (signupGenderSpinner.selectedItem.toString().isEmpty()) ' ' else
             signupGenderSpinner.selectedItem.toString()[0]
         val emailAddress = signupEmailEditText.text.toString().trim()
-        val password = signupPasswordEditText.text.toString().trim()
-        val passwordConfirmer = signupPasswordConfirmerEditText.text.toString().trim()
+        val password = signupPasswordEditText.text.toString()
+        val passwordConfirmer = signupPasswordConfirmerEditText.text.toString()
         val phoneNumber = signupPhoneNumberEditText.text.toString().trim()
 
         signupProgressLayout.visibility = View.VISIBLE
@@ -337,7 +337,7 @@ class SignupFragment : Fragment() {
             val noNetworkSnackbar = view?.let {
                 Snackbar.make(
                     it,
-                    getText(R.string.no_internet_connection_message),
+                    getString(R.string.no_internet_connection_message, "signup"),
                     Snackbar.LENGTH_LONG
                 )
             }
