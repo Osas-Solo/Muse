@@ -320,6 +320,8 @@ class SignupFragment : Fragment() {
     }
 
     private fun signupUser() {
+        toggleSignupInputs(false)
+
         val firstName = signupFirstNameEditText.text.toString().trim()
         val lastName = signupLastNameEditText.text.toString().trim()
         val gender = if (signupGenderSpinner.selectedItem.toString().isEmpty()) ' ' else
@@ -343,6 +345,7 @@ class SignupFragment : Fragment() {
             }
 
             noNetworkSnackbar?.show()
+            toggleSignupInputs(true)
         } else {
             try {
                 val signupResponse: LiveData<Response<UserSignupResponse>> = liveData {
@@ -392,6 +395,7 @@ class SignupFragment : Fragment() {
                     }
 
                     signupProgressLayout.visibility = View.INVISIBLE
+                    toggleSignupInputs(true)
                 })
             }  catch (connectionException: IOException) {
                 Log.e(tag, "Connection exception: $connectionException")
@@ -404,6 +408,7 @@ class SignupFragment : Fragment() {
                 }
 
                 socketTimeOutSnackbar?.show()
+                toggleSignupInputs(true)
             }
         }
 
@@ -414,6 +419,16 @@ class SignupFragment : Fragment() {
 
     private fun toggleSignupButton() {
         signupButton.isEnabled = areSignupDetailsValid()
+    }
+
+    private fun toggleSignupInputs(isEnabled: Boolean) {
+        signupFirstNameEditText.isEnabled = isEnabled
+        signupLastNameEditText.isEnabled = isEnabled
+        signupGenderSpinner.isEnabled = isEnabled
+        signupEmailEditText.isEnabled = isEnabled
+        signupPasswordEditText.isEnabled = isEnabled
+        signupPasswordConfirmerEditText.isEnabled = isEnabled
+        signupPhoneNumberEditText.isEnabled = isEnabled
     }
 
     private fun areSignupDetailsValid(): Boolean {

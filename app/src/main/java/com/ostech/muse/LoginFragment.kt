@@ -30,6 +30,9 @@ import com.ostech.muse.models.UserLoginResponse
 import com.ostech.muse.session.SessionManager
 import retrofit2.Response
 import java.io.IOException
+import java.net.ConnectException
+import java.net.SocketException
+import java.net.SocketTimeoutException
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
@@ -109,6 +112,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun loginUser() {
+        toggleLoginInputs(false)
         val emailAddress = loginEmailEditText.text.toString().trim()
         val password = loginPasswordEditText.text.toString().trim()
 
@@ -126,6 +130,7 @@ class LoginFragment : Fragment() {
             }
 
             noNetworkSnackbar?.show()
+            toggleLoginInputs(true)
         } else {
             try {
                 val loginResponse: LiveData<Response<UserLoginResponse>> = liveData {
@@ -154,7 +159,6 @@ class LoginFragment : Fragment() {
                                 .setPositiveButton("OK") { _, _ -> launchSignupActivity() }
                                 .show()
                         }
-
                     } else {
                         val errorJSONString = it.errorBody()?.string()
                         Log.i(tag, "Login response: $errorJSONString")
@@ -173,9 +177,23 @@ class LoginFragment : Fragment() {
                     }
 
                     loginProgressLayout.visibility = View.INVISIBLE
+                    toggleLoginInputs(true)
                 })
             }  catch (throwable: Throwable) {
                 when (throwable) {
+                    is ConnectException, is SocketException, is SocketTimeoutException -> {
+                        Log.e(tag, "Connection exception: $throwable")
+                        val socketTimeOutSnackbar = view?.let {
+                            Snackbar.make(
+                                it,
+                                getText(R.string.poor_internet_connection_message),
+                                Snackbar.LENGTH_LONG
+                            )
+                        }
+
+                        socketTimeOutSnackbar?.show()
+                        toggleLoginInputs(true)
+                    }
                     is IOException -> {
                         Log.e(tag, "Connection exception: $throwable")
                         val socketTimeOutSnackbar = view?.let {
@@ -187,6 +205,7 @@ class LoginFragment : Fragment() {
                         }
 
                         socketTimeOutSnackbar?.show()
+                        toggleLoginInputs(true)
                     }
                 }
             }
@@ -195,6 +214,11 @@ class LoginFragment : Fragment() {
         val inputMethodManager: InputMethodManager =
             activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(loginInputLayout.windowToken, 0)
+    }
+
+    private fun toggleLoginInputs(isEnabled: Boolean) {
+        loginEmailEditText.isEnabled = isEnabled
+        loginPasswordEditText.isEnabled = isEnabled
     }
 
     private fun launchSignupActivity() {
