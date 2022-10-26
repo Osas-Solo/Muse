@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,8 +14,8 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
@@ -30,9 +29,6 @@ import com.ostech.muse.models.UserLoginResponse
 import com.ostech.muse.session.SessionManager
 import retrofit2.Response
 import java.io.IOException
-import java.net.ConnectException
-import java.net.SocketException
-import java.net.SocketTimeoutException
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
@@ -56,7 +52,7 @@ class LoginFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding =
             FragmentLoginBinding.inflate(layoutInflater, container, false)
 
@@ -104,11 +100,11 @@ class LoginFragment : Fragment() {
     }
 
     private fun hasPasswordBeenEntered(): Boolean {
-        return !loginPasswordEditText.text.toString().isEmpty()
+        return loginPasswordEditText.text.toString().isNotEmpty()
     }
 
     private fun toggleLoginButton() {
-         loginButton.isEnabled = isEmailAddressValid() && hasPasswordBeenEntered()
+        loginButton.isEnabled = isEmailAddressValid() && hasPasswordBeenEntered()
     }
 
     private fun loginUser() {
@@ -132,82 +128,67 @@ class LoginFragment : Fragment() {
             noNetworkSnackbar?.show()
             toggleLoginInputs(true)
         } else {
-            try {
-                val loginResponse: LiveData<Response<UserLoginResponse>> = liveData {
+            val loginResponse: LiveData<Response<UserLoginResponse>> = liveData {
+                try {
                     val response = MuseAPIBuilder.museAPIService.loginUser(
                         emailAddress,
                         password,
                     )
                     emit(response)
-                }
-
-                loginResponse.observe(viewLifecycleOwner, Observer { it ->
-                    if (it.isSuccessful) {
-                        val successJSON = it.body()
-                        Log.i(tag, "Login response: $successJSON")
-
-                        loggedInUser = successJSON?.user!!
-                        Log.i(tag, "Logged in user: $loggedInUser")
-
-                        val session  = SessionManager(requireContext())
-                        session.saveAuthToken(successJSON.sessionToken)
-                        session.saveUserID(loggedInUser.userID)
-
-                        context?.let { it1 ->
-                            AlertDialog.Builder(it1)
-                                .setMessage(getText(R.string.login_success_message))
-                                .setPositiveButton("OK") { _, _ -> launchSignupActivity() }
-                                .show()
-                        }
-                    } else {
-                        val errorJSONString = it.errorBody()?.string()
-                        Log.i(tag, "Login response: $errorJSONString")
-                        val errorJSON = Gson().fromJson(errorJSONString, ErrorResponse::class.java)
-                        var errorMessage = errorJSON.error
-
-                        val loginErrorSnackbar = view?.let {
-                            Snackbar.make(
-                                it,
-                                errorMessage,
-                                Snackbar.LENGTH_LONG
-                            )
-                        }
-
-                        loginErrorSnackbar?.show()
+                } catch (connectionException: IOException) {
+                    Log.i(tag, "loginUser: $connectionException")
+                    val connectionErrorSnackbar = view?.let {
+                        Snackbar.make(
+                            it,
+                            getText(R.string.poor_internet_connection_message),
+                            Snackbar.LENGTH_LONG
+                        )
                     }
 
+                    connectionErrorSnackbar?.show()
                     loginProgressLayout.visibility = View.INVISIBLE
                     toggleLoginInputs(true)
-                })
-            }  catch (throwable: Throwable) {
-                when (throwable) {
-                    is ConnectException, is SocketException, is SocketTimeoutException -> {
-                        Log.e(tag, "Connection exception: $throwable")
-                        val socketTimeOutSnackbar = view?.let {
-                            Snackbar.make(
-                                it,
-                                getText(R.string.poor_internet_connection_message),
-                                Snackbar.LENGTH_LONG
-                            )
-                        }
-
-                        socketTimeOutSnackbar?.show()
-                        toggleLoginInputs(true)
-                    }
-                    is IOException -> {
-                        Log.e(tag, "Connection exception: $throwable")
-                        val socketTimeOutSnackbar = view?.let {
-                            Snackbar.make(
-                                it,
-                                getText(R.string.poor_internet_connection_message),
-                                Snackbar.LENGTH_LONG
-                            )
-                        }
-
-                        socketTimeOutSnackbar?.show()
-                        toggleLoginInputs(true)
-                    }
                 }
+            }
+
+            loginResponse.observe(viewLifecycleOwner) { it ->
+                if (it.isSuccessful) {
+                    val successJSON = it.body()
+                    Log.i(tag, "Login response: $successJSON")
+
+                    loggedInUser = successJSON?.user!!
+                    Log.i(tag, "Logged in user: $loggedInUser")
+
+                    val session = SessionManager(requireContext())
+                    session.saveAuthToken(successJSON.sessionToken)
+                    session.saveUserID(loggedInUser.userID)
+
+                    context?.let { it1 ->
+                        AlertDialog.Builder(it1)
+                            .setMessage(getText(R.string.login_success_message))
+                            .setPositiveButton("OK") { _, _ -> launchSignupActivity() }
+                            .show()
+                    }
+                } else {
+                    val errorJSONString = it.errorBody()?.string()
+                    Log.i(tag, "Login response: $errorJSONString")
+                    val errorJSON =
+                        Gson().fromJson(errorJSONString, ErrorResponse::class.java)
+                    val errorMessage = errorJSON.error
+
+                    val loginErrorSnackbar = view?.let {
+                        Snackbar.make(
+                            it,
+                            errorMessage,
+                            Snackbar.LENGTH_LONG
+                        )
+                    }
+
+                    loginErrorSnackbar?.show()
+                }
+
+                loginProgressLayout.visibility = View.INVISIBLE
+                toggleLoginInputs(true)
             }
         }
 
@@ -219,6 +200,8 @@ class LoginFragment : Fragment() {
     private fun toggleLoginInputs(isEnabled: Boolean) {
         loginEmailEditText.isEnabled = isEnabled
         loginPasswordEditText.isEnabled = isEnabled
+        forgotPasswordTextView.isEnabled = isEnabled
+        signupAlternativeTextView.isEnabled = isEnabled
     }
 
     private fun launchSignupActivity() {

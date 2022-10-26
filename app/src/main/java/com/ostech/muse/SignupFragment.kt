@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,22 +17,20 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatSpinner
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentSignupBinding
+import com.ostech.muse.models.ErrorResponse
 import com.ostech.muse.models.SignupDetailsVerification
 import com.ostech.muse.models.User
-import com.ostech.muse.models.ErrorResponse
 import com.ostech.muse.models.UserSignupResponse
 import retrofit2.Response
 import java.io.IOException
-import java.net.ConnectException
-import java.net.SocketTimeoutException
 
 class SignupFragment : Fragment() {
     private var _binding: FragmentSignupBinding? = null
@@ -71,7 +68,7 @@ class SignupFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding =
             FragmentSignupBinding.inflate(layoutInflater, container, false)
 
@@ -117,20 +114,21 @@ class SignupFragment : Fragment() {
                 toggleSignupButton()
             }
 
-            signupGenderSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    validateGender()
-                    toggleSignupButton()
-                }
+            signupGenderSpinner.onItemSelectedListener =
+                object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        validateGender()
+                        toggleSignupButton()
+                    }
 
-                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                    }
                 }
-            }
 
             signupEmailEditText.doOnTextChanged { _, _, _, _ ->
                 validateEmailAddress()
@@ -291,7 +289,8 @@ class SignupFragment : Fragment() {
     private fun confirmPassword() {
         val password = signupPasswordEditText.text.toString()
         val passwordConfirmer = signupPasswordConfirmerEditText.text.toString().trim()
-        val isPasswordConfirmed = SignupDetailsVerification.isPasswordConfirmed(password, passwordConfirmer)
+        val isPasswordConfirmed =
+            SignupDetailsVerification.isPasswordConfirmed(password, passwordConfirmer)
 
         if (isPasswordConfirmed) {
             signupPasswordConfirmerCheckBox.text = getText(R.string.confirmed_password_hint_text)
@@ -347,8 +346,8 @@ class SignupFragment : Fragment() {
             noNetworkSnackbar?.show()
             toggleSignupInputs(true)
         } else {
-            try {
-                val signupResponse: LiveData<Response<UserSignupResponse>> = liveData {
+            val signupResponse: LiveData<Response<UserSignupResponse>> = liveData {
+                try {
                     val response = MuseAPIBuilder.museAPIService.signupUser(
                         firstName,
                         lastName,
@@ -356,58 +355,60 @@ class SignupFragment : Fragment() {
                         emailAddress,
                         password,
                         passwordConfirmer,
-                        phoneNumber)
+                        phoneNumber
+                    )
                     emit(response)
-                }
-
-                signupResponse.observe(viewLifecycleOwner, Observer { it ->
-                    if (it.isSuccessful) {
-                        val successJSON = it.body()
-                        Log.i(tag, "Signup response: $successJSON")
-
-                        signedupUser = successJSON?.user!!
-                        Log.i(tag, "Signed up user: $signedupUser")
-
-                        context?.let { it1 ->
-                            AlertDialog.Builder(it1)
-                                .setMessage(getText(R.string.signup_success_message))
-                                .setPositiveButton("OK") { _, _ -> launchLoginActivity() }
-                                .show()
-                        }
-
-                    } else {
-                        val errorJSONString = it.errorBody()?.string()
-                        Log.i(tag, "Signup response: $errorJSONString")
-                        val errorJSON = Gson().fromJson(errorJSONString, ErrorResponse::class.java)
-                        var errorMessage = errorJSON.error
-
-                        if (errorMessage.contains("Sorry", ignoreCase = true)) {
-                            val existingUserSnackbar = view?.let {
-                                Snackbar.make(
-                                    it,
-                                    errorMessage,
-                                    Snackbar.LENGTH_LONG
-                                )
-                            }
-
-                            existingUserSnackbar?.show()
-                        }
+                } catch (connectionException: IOException) {
+                    Log.i(tag, "loginUser: $connectionException")
+                    val connectionErrorSnackbar = view?.let {
+                        Snackbar.make(
+                            it,
+                            getText(R.string.poor_internet_connection_message),
+                            Snackbar.LENGTH_LONG
+                        )
                     }
 
+                    connectionErrorSnackbar?.show()
                     signupProgressLayout.visibility = View.INVISIBLE
                     toggleSignupInputs(true)
-                })
-            }  catch (connectionException: IOException) {
-                Log.e(tag, "Connection exception: $connectionException")
-                val socketTimeOutSnackbar = view?.let {
-                    Snackbar.make(
-                        it,
-                        getText(R.string.poor_internet_connection_message),
-                        Snackbar.LENGTH_LONG
-                    )
+                }
+            }
+
+            signupResponse.observe(viewLifecycleOwner) { it ->
+                if (it.isSuccessful) {
+                    val successJSON = it.body()
+                    Log.i(tag, "Signup response: $successJSON")
+
+                    signedupUser = successJSON?.user!!
+                    Log.i(tag, "Signed up user: $signedupUser")
+
+                    context?.let { it1 ->
+                        AlertDialog.Builder(it1)
+                            .setMessage(getText(R.string.signup_success_message))
+                            .setPositiveButton("OK") { _, _ -> launchLoginActivity() }
+                            .show()
+                    }
+
+                } else {
+                    val errorJSONString = it.errorBody()?.string()
+                    Log.i(tag, "Signup response: $errorJSONString")
+                    val errorJSON = Gson().fromJson(errorJSONString, ErrorResponse::class.java)
+                    val errorMessage = errorJSON.error
+
+                    if (errorMessage.contains("Sorry", ignoreCase = true)) {
+                        val existingUserSnackbar = view?.let {
+                            Snackbar.make(
+                                it,
+                                errorMessage,
+                                Snackbar.LENGTH_LONG
+                            )
+                        }
+
+                        existingUserSnackbar?.show()
+                    }
                 }
 
-                socketTimeOutSnackbar?.show()
+                signupProgressLayout.visibility = View.INVISIBLE
                 toggleSignupInputs(true)
             }
         }
@@ -429,6 +430,7 @@ class SignupFragment : Fragment() {
         signupPasswordEditText.isEnabled = isEnabled
         signupPasswordConfirmerEditText.isEnabled = isEnabled
         signupPhoneNumberEditText.isEnabled = isEnabled
+        loginAlternativeTextView.isEnabled = isEnabled
     }
 
     private fun areSignupDetailsValid(): Boolean {
