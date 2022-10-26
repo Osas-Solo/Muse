@@ -174,17 +174,21 @@ class LoginFragment : Fragment() {
 
                     loginProgressLayout.visibility = View.INVISIBLE
                 })
-            }  catch (connectionException: IOException) {
-                Log.e(tag, "Connection exception: $connectionException")
-                val socketTimeOutSnackbar = view?.let {
-                    Snackbar.make(
-                        it,
-                        getText(R.string.poor_internet_connection_message),
-                        Snackbar.LENGTH_LONG
-                    )
-                }
+            }  catch (throwable: Throwable) {
+                when (throwable) {
+                    is IOException -> {
+                        Log.e(tag, "Connection exception: $throwable")
+                        val socketTimeOutSnackbar = view?.let {
+                            Snackbar.make(
+                                it,
+                                getText(R.string.poor_internet_connection_message),
+                                Snackbar.LENGTH_LONG
+                            )
+                        }
 
-                socketTimeOutSnackbar?.show()
+                        socketTimeOutSnackbar?.show()
+                    }
+                }
             }
         }
 
