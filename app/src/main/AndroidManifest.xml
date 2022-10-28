@@ -19,7 +19,8 @@
         tools:targetApi="33">
         <activity
             android:name=".SignupActivity"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".IntroActivity">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -39,7 +40,8 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".IntroActivity">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

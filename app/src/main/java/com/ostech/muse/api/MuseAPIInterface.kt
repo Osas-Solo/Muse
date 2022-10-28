@@ -4,6 +4,7 @@ import com.ostech.muse.models.Subscription
 import com.ostech.muse.models.SubscriptionType
 import com.ostech.muse.models.User
 import com.ostech.muse.models.UserLoginResponse
+import com.ostech.muse.models.UserProfileResponse
 import com.ostech.muse.models.UserSignupResponse
 import org.json.JSONObject
 import retrofit2.Call
@@ -40,6 +41,9 @@ interface MuseAPIInterface {
         @Field("password") password: String,
     ): Response<UserLoginResponse>
 
+    @GET("user-api/users/{userID}")
+    suspend fun getUserProfile(@Path(value = "userID") userID: Int): Response<UserProfileResponse>
+
     @GET("user-api/users/{userID}/subscriptions")
     suspend fun getSubscriptions(@Path(value = "userID") userID: Int): Response<Array<Subscription>>
 
@@ -48,4 +52,22 @@ interface MuseAPIInterface {
         @Path(value = "userID") userID: Int,
         @Path(value = "subscriptionID") subscriptionID: Int
     ): Response<Subscription>
+
+    @FormUrlEncoded
+    @POST("user-api/users/{userID}/subscriptions/{subscriptionID}")
+    suspend fun updateSubscription(
+        @Path(value = "userID") userID: Int,
+        @Path(value = "subscriptionID") subscriptionID: Int,
+        @Field("numberOfNewlyRecognisedSongs") numberOfNewlyRecognisedSongs: Int,
+    ): Response<Subscription>
+
+    @FormUrlEncoded
+    @POST("user-api/users/{userID}/subscriptions")
+    suspend fun paySubscription(
+        @Path(value = "userID") userID: Int,
+        @Field("transactionReference") transactionReference: String,
+        @Field("subscriptionType") subscriptionTypeID: Int,
+        @Field("amountPaid") amountPaid: Double,
+    ): Response<Subscription>
+
 }
