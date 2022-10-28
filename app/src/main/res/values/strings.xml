@@ -16,7 +16,7 @@
     <string name="last_name_prompt_text">Last Name</string>
     <string name="confirm_password_prompt_text">Confirm Password</string>
     <string name="phone_number_prompt_text">Phone Number</string>
-    <string name="gender_prompt_text">Phone Number</string>
+    <string name="gender_prompt_text">Gender</string>
     <string-array name="genders">
         <item />
         <item>M</item>
@@ -54,22 +54,28 @@
         Please enter a valid phone number. \nA valid phone number should follow the format: 08012345678
     </string>
     <string name="invalid_gender_hint_text">Please select your gender</string>
-    
+
     <string name="signup_progress_text">Attempting to signup,\nplease wait</string>
     <string name="login_progress_text">Attempting to login,\nplease wait</string>
 
     <string name="no_internet_connection_message">
         Please ensure you are connected to the internet\nwhile trying to %1$s
     </string>
-    
+
     <string name="poor_internet_connection_message">
         Poor internet connection detected. \nPlease retry with stronger internet connection
     </string>
 
     <string name="signup_success_message">Signup was successful. You may now proceed to login</string>
     <string name="login_success_message">Login was successful. You may now proceed to recognise songs</string>
-    
+
     <string name="select_music_files_prompt_text">Select Music Files</string>
     <string name="identify_music_files_prompt_text">Identify Music Files</string>
     <string name="confirm_music_files_prompt_text">Confirm Changes</string>
+    
+    <string name="user_profile_text">User Profile</string>
+    <string name="user_id_text">User ID</string>
+    <string name="full_name_text">Full Name</string>
+    <string name="current_subscription_text">Current Subscription</string>
+    <string name="previous_subscriptions_text">Previous Subscriptions</string>
 </resources>

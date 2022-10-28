@@ -18,6 +18,13 @@
         android:theme="@style/Theme.Muse"
         tools:targetApi="33">
         <activity
+            android:name=".NavigationActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".SignupActivity"
             android:exported="false"
             android:parentActivityName=".IntroActivity">
