@@ -3,12 +3,15 @@ package com.ostech.muse
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.commit
 import com.google.android.material.navigation.NavigationView
 import com.ostech.muse.databinding.ActivityNavigationBinding
-import com.ostech.muse.databinding.FragmentProfileBinding
 
 class NavigationActivity : AppCompatActivity() {
     private var _binding: ActivityNavigationBinding? = null
@@ -19,7 +22,9 @@ class NavigationActivity : AppCompatActivity() {
 
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navigationDrawerLayout: DrawerLayout
+    private lateinit var navigationFragmentContainerView: FragmentContainerView
     private lateinit var navigationView: NavigationView
+    private lateinit var onScreenFragment: Fragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +32,7 @@ class NavigationActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         navigationDrawerLayout = binding.navigationDrawerLayout
+        navigationFragmentContainerView = binding.navigationFragmentContainerView
         navigationView = binding.navigationView
 
         drawerToggle = ActionBarDrawerToggle(this, navigationDrawerLayout, R.string.open, R.string.open)
@@ -35,20 +41,38 @@ class NavigationActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        switchFragment(ProfileFragment())
+
         binding.apply {
             navigationView.setNavigationItemSelectedListener {
                 when (it.itemId) {
                     R.id.music_recogniser_menu_item -> {
-
+                        if (onScreenFragment !is LoginFragment) {
+                            switchFragment(LoginFragment())
+                        }
                     }
 
                     R.id.profile_menu_item -> {
-
+                        if (onScreenFragment !is ProfileFragment) {
+                            switchFragment(ProfileFragment())
+                        }
                     }
                 }
 
+                navigationDrawerLayout.closeDrawer(GravityCompat.START)
+
                 true
             }
+        }
+    }
+
+    fun switchFragment(destinationFragment: Fragment) {
+        onScreenFragment = destinationFragment
+
+        supportFragmentManager.commit {
+            replace(navigationFragmentContainerView.id, destinationFragment)
+            setReorderingAllowed(true)
+            addToBackStack(null)
         }
     }
 
