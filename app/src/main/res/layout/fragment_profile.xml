@@ -46,22 +46,24 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/profile_full_name_title_text_view"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/full_name_text"
         android:layout_marginBottom="10dp"
         android:layout_marginStart="10dp"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintTop_toBottomOf="@+id/profile_progress_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/profile_full_name_text_view"/>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/profile_full_name_text_view"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/full_name_text"
         android:layout_marginBottom="10dp"
         android:layout_marginEnd="10dp"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintTop_toBottomOf="@+id/profile_progress_layout"
         app:layout_constraintStart_toEndOf="@id/profile_full_name_title_text_view"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -156,22 +158,24 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/profile_current_subscription_title_text_view"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/current_subscription_text"
         android:layout_marginBottom="10dp"
         android:layout_marginStart="10dp"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintTop_toBottomOf="@+id/profile_phone_number_title_text_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/profile_email_address_text_view"/>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/profile_current_subscription_text_view"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/current_subscription_text"
         android:layout_marginBottom="10dp"
         android:layout_marginEnd="10dp"
+        app:layout_constraintHorizontal_bias="1"
         app:layout_constraintTop_toBottomOf="@+id/profile_phone_number_text_view"
         app:layout_constraintStart_toEndOf="@id/profile_email_address_title_text_view"
         app:layout_constraintEnd_toEndOf="parent"/>

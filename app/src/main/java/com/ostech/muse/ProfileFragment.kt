@@ -40,7 +40,7 @@ class ProfileFragment : Fragment() {
     private lateinit var profilePhoneNumberTextView: AppCompatTextView
     private lateinit var profileCurrentSubscriptionTextView: AppCompatTextView
 
-    private lateinit var loggedInUser: User
+    private var loggedInUser: User? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -113,13 +113,13 @@ class ProfileFragment : Fragment() {
                     loggedInUser = successJSON?.user!!
                     Log.i(tag, "Logged in user: $loggedInUser")
 
-                    profileFullNameTextView.text = loggedInUser.fullName
-                    profileUserIDTextView.text = loggedInUser.userID.toString()
-                    profileGenderTextView.text = loggedInUser.gender
-                    profileEmailAddressTextView.text = loggedInUser.emailAddress
-                    profilePhoneNumberTextView.text = loggedInUser.phoneNumber
+                    profileFullNameTextView.text = loggedInUser!!.fullName
+                    profileUserIDTextView.text = loggedInUser!!.userID.toString()
+                    profileGenderTextView.text = loggedInUser!!.gender
+                    profileEmailAddressTextView.text = loggedInUser!!.emailAddress
+                    profilePhoneNumberTextView.text = loggedInUser!!.phoneNumber
 
-                    profileCurrentSubscriptionTextView.text = loggedInUser.currentSubscription?.subscriptionType
+                    profileCurrentSubscriptionTextView.text = loggedInUser!!.currentSubscription?.subscriptionType
                         ?: getText(R.string.no_active_subscription_message)
 
                     profileProgressLayout.visibility = View.GONE
