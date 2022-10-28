@@ -1,13 +1,12 @@
 package com.ostech.muse
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.google.android.material.navigation.NavigationView
@@ -35,7 +34,8 @@ class NavigationActivity : AppCompatActivity() {
         navigationFragmentContainerView = binding.navigationFragmentContainerView
         navigationView = binding.navigationView
 
-        drawerToggle = ActionBarDrawerToggle(this, navigationDrawerLayout, R.string.open, R.string.open)
+        drawerToggle =
+            ActionBarDrawerToggle(this, navigationDrawerLayout, R.string.open, R.string.open)
         navigationDrawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
 
@@ -66,7 +66,7 @@ class NavigationActivity : AppCompatActivity() {
         }
     }
 
-    fun switchFragment(destinationFragment: Fragment) {
+    private fun switchFragment(destinationFragment: Fragment) {
         onScreenFragment = destinationFragment
 
         supportFragmentManager.commit {
@@ -77,7 +77,7 @@ class NavigationActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (drawerToggle.onOptionsItemSelected(item)){
+        if (drawerToggle.onOptionsItemSelected(item)) {
             true
         }
         return super.onOptionsItemSelected(item)

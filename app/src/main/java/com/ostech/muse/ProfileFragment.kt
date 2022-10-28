@@ -25,7 +25,7 @@ import retrofit2.Response
 import java.io.IOException
 
 class ProfileFragment : Fragment() {
-    private var _binding: FragmentProfileBinding? = null
+    private var _binding: com.ostech.muse.databinding.FragmentProfileBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
