@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
@@ -17,9 +16,10 @@ import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentProfileBinding
 import com.ostech.muse.models.ErrorResponse
+import com.ostech.muse.models.Subscription
 import com.ostech.muse.models.User
-import com.ostech.muse.models.UserLoginResponse
 import com.ostech.muse.models.UserProfileResponse
+import com.ostech.muse.models.UserSubscriptionListResponse
 import com.ostech.muse.session.SessionManager
 import retrofit2.Response
 import java.io.IOException
@@ -41,6 +41,7 @@ class ProfileFragment : Fragment() {
     private lateinit var profileCurrentSubscriptionTextView: AppCompatTextView
 
     private var loggedInUser: User? = null
+    private lateinit var previousSubscriptions: List<Subscription>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,6 +69,7 @@ class ProfileFragment : Fragment() {
         activity?.title = fragmentTitle
 
         loadProfile()
+        loadPreviousSubscriptions()
 
         binding.apply {
         }
@@ -80,7 +82,7 @@ class ProfileFragment : Fragment() {
             val noNetworkSnackbar = view?.let {
                 Snackbar.make(
                     it,
-                    getString(R.string.no_internet_connection_message, "login"),
+                    getString(R.string.no_internet_connection_message, "load profile"),
                     Snackbar.LENGTH_LONG
                 )
             }
@@ -126,6 +128,56 @@ class ProfileFragment : Fragment() {
                 } else {
                     val errorJSONString = it.errorBody()?.string()
                     Log.i(tag, "Profile response: $errorJSONString")
+                    val errorJSON =
+                        Gson().fromJson(errorJSONString, ErrorResponse::class.java)
+                    val errorMessage = errorJSON.error
+                }
+            }
+        }
+    }
+
+    private fun loadPreviousSubscriptions() {
+        val userID = context?.let { SessionManager(it).fetchUserID() }
+
+        if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
+            val noNetworkSnackbar = view?.let {
+                Snackbar.make(
+                    it,
+                    getString(R.string.no_internet_connection_message, "load previous subscriptions"),
+                    Snackbar.LENGTH_LONG
+                )
+            }
+
+            noNetworkSnackbar?.show()
+        } else {
+            val subscriptionsResponse: LiveData<Response<UserSubscriptionListResponse>> = liveData {
+                try {
+                    val response = userID?.let { MuseAPIBuilder.museAPIService.getSubscriptions(it) }
+                    response?.let { emit(it) }
+                } catch (connectionException: IOException) {
+                    Log.i(tag, "loadSubscriptions: $connectionException")
+                    val connectionErrorSnackbar = view?.let {
+                        Snackbar.make(
+                            it,
+                            getText(R.string.poor_internet_connection_message),
+                            Snackbar.LENGTH_LONG
+                        )
+                    }
+
+                    connectionErrorSnackbar?.show()
+                }
+            }
+
+            subscriptionsResponse.observe(viewLifecycleOwner) { it ->
+                if (it.isSuccessful) {
+                    val successJSON = it.body()
+                    Log.i(tag, "Subscriptions response: $successJSON")
+
+                    previousSubscriptions = successJSON?.subscriptions!!
+                    Log.i(tag, "Subscriptions: $previousSubscriptions")
+                } else {
+                    val errorJSONString = it.errorBody()?.string()
+                    Log.i(tag, "Subscriptions response: $errorJSONString")
                     val errorJSON =
                         Gson().fromJson(errorJSONString, ErrorResponse::class.java)
                     val errorMessage = errorJSON.error

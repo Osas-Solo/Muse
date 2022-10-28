@@ -2,9 +2,13 @@ package com.ostech.muse.api
 
 import com.ostech.muse.models.Subscription
 import com.ostech.muse.models.SubscriptionType
+import com.ostech.muse.models.SubscriptionTypeListResponse
+import com.ostech.muse.models.SubscriptionTypeResponse
 import com.ostech.muse.models.UserLoginResponse
 import com.ostech.muse.models.UserProfileResponse
 import com.ostech.muse.models.UserSignupResponse
+import com.ostech.muse.models.UserSubscriptionListResponse
+import com.ostech.muse.models.UserSubscriptionResponse
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -14,10 +18,10 @@ import retrofit2.http.Path
 
 interface MuseAPIInterface {
     @GET("user-api/subscription-types")
-    suspend fun getSubscriptionTypes(): Response<Array<SubscriptionType>>
+    suspend fun getSubscriptionTypes(): Response<SubscriptionTypeListResponse>
 
     @GET("user-api/subscription-types/{id}")
-    suspend fun getSubscriptionTypeByID(@Path(value = "id") id: Int): Response<SubscriptionType>
+    suspend fun getSubscriptionTypeByID(@Path(value = "id") id: Int): Response<SubscriptionTypeResponse>
 
     @FormUrlEncoded
     @POST("user-api/users")
@@ -42,13 +46,13 @@ interface MuseAPIInterface {
     suspend fun getUserProfile(@Path(value = "userID") userID: Int): Response<UserProfileResponse>
 
     @GET("user-api/users/{userID}/subscriptions")
-    suspend fun getSubscriptions(@Path(value = "userID") userID: Int): Response<Array<Subscription>>
+    suspend fun getSubscriptions(@Path(value = "userID") userID: Int): Response<UserSubscriptionListResponse>
 
     @GET("user-api/users/{userID}/subscriptions/{subscriptionID}")
     suspend fun getSubscriptionByID(
         @Path(value = "userID") userID: Int,
         @Path(value = "subscriptionID") subscriptionID: Int
-    ): Response<Subscription>
+    ): Response<UserSubscriptionResponse>
 
     @FormUrlEncoded
     @POST("user-api/users/{userID}/subscriptions/{subscriptionID}")
@@ -56,7 +60,7 @@ interface MuseAPIInterface {
         @Path(value = "userID") userID: Int,
         @Path(value = "subscriptionID") subscriptionID: Int,
         @Field("numberOfNewlyRecognisedSongs") numberOfNewlyRecognisedSongs: Int,
-    ): Response<Subscription>
+    ): Response<UserSubscriptionResponse>
 
     @FormUrlEncoded
     @POST("user-api/users/{userID}/subscriptions")
@@ -65,6 +69,6 @@ interface MuseAPIInterface {
         @Field("transactionReference") transactionReference: String,
         @Field("subscriptionType") subscriptionTypeID: Int,
         @Field("amountPaid") amountPaid: Double,
-    ): Response<Subscription>
+    ): Response<UserSubscriptionResponse>
 
 }
