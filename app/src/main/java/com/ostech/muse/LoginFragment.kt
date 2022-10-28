@@ -166,8 +166,10 @@ class LoginFragment : Fragment() {
                     context?.let { it1 ->
                         AlertDialog.Builder(it1)
                             .setMessage(getText(R.string.login_success_message))
-                            .setPositiveButton("OK") { _, _ -> launchSignupActivity() }
+                            .setPositiveButton("OK") { _, _ -> launchNavigationActivity() }
                             .show()
+
+                        launchNavigationActivity()
                     }
                 } else {
                     val errorJSONString = it.errorBody()?.string()
@@ -207,6 +209,11 @@ class LoginFragment : Fragment() {
     private fun launchSignupActivity() {
         val signupIntent = Intent(context, SignupActivity::class.java)
         startActivity(signupIntent)
+    }
+
+    private fun launchNavigationActivity() {
+        val navigationIntent = Intent(context, NavigationActivity::class.java)
+        startActivity(navigationIntent)
     }
 
     override fun onDestroyView() {
