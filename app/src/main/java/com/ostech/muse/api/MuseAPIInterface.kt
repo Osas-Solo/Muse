@@ -2,12 +2,9 @@ package com.ostech.muse.api
 
 import com.ostech.muse.models.Subscription
 import com.ostech.muse.models.SubscriptionType
-import com.ostech.muse.models.User
 import com.ostech.muse.models.UserLoginResponse
 import com.ostech.muse.models.UserProfileResponse
 import com.ostech.muse.models.UserSignupResponse
-import org.json.JSONObject
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
