@@ -78,4 +78,8 @@
     <string name="full_name_text">Full Name</string>
     <string name="current_subscription_text">Current Subscription</string>
     <string name="previous_subscriptions_text">Previous Subscriptions</string>
+
+    <string name="profile_progress_text">Loading user profile</string>
+
+    <string name="no_active_subscription_message">You do not have any active subscription</string>
 </resources>
