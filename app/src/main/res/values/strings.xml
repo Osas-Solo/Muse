@@ -85,5 +85,14 @@
     <string name="profile_progress_text">Loading user profile</string>
 
     <string name="no_active_subscription_message">You do not have\n any active subscription</string>
+
+    <string name="subscription_id_text">Subscription ID</string>
+    <string name="transaction_reference_text">Transaction Reference</string>
+    <string name="subscription_plan_text">Subscription Plan</string>
+    <string name="number_of_recognised_songs_text">Number of Recognised Songs</string>
+    <string name="number_of_songs_left_text">Number of Songs Left</string>
+    <string name="subscription_date_text">Subscription Date</string>
+    <string name="price_paid_text">Price Paid</string>
+
     <string name="refresh_text">Refresh</string>
 </resources>
