@@ -11,6 +11,8 @@ import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
@@ -43,6 +45,7 @@ class ProfileFragment : Fragment() {
     private lateinit var profileEmailAddressTextView: AppCompatTextView
     private lateinit var profilePhoneNumberTextView: AppCompatTextView
     private lateinit var profileCurrentSubscriptionTextView: AppCompatTextView
+    private lateinit var profilePreviousSubscriptionRecyclerView: RecyclerView
 
     private var oldScrollYPosition : Int = 0
 
@@ -66,6 +69,12 @@ class ProfileFragment : Fragment() {
         profileEmailAddressTextView = binding.profileEmailAddressTextView
         profilePhoneNumberTextView = binding.profilePhoneNumberTextView
         profileCurrentSubscriptionTextView = binding.profileCurrentSubscriptionTextView
+        profilePreviousSubscriptionRecyclerView = binding.profilePreviousSubscriptionsRecyclerView
+
+        profilePreviousSubscriptionRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        loadProfile()
+        loadPreviousSubscriptions()
 
         return binding.root
     }
@@ -75,9 +84,6 @@ class ProfileFragment : Fragment() {
 
         val fragmentTitle = getString(R.string.app_name) + " - Profile"
         activity?.title = fragmentTitle
-
-        loadProfile()
-        loadPreviousSubscriptions()
 
         binding.apply {
             profileNestedScrollView.viewTreeObserver.addOnScrollChangedListener {
@@ -199,6 +205,10 @@ class ProfileFragment : Fragment() {
 
                     previousSubscriptions = successJSON?.subscriptions!!
                     Log.i(tag, "Subscriptions: $previousSubscriptions")
+
+                    profilePreviousSubscriptionRecyclerView.adapter = PreviousSubscriptionListAdapter(
+                        previousSubscriptions
+                    )
                 } else {
                     val errorJSONString = it.errorBody()?.string()
                     Log.i(tag, "Subscriptions response: $errorJSONString")
