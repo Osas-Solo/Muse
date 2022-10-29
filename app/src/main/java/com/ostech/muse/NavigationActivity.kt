@@ -41,14 +41,14 @@ class NavigationActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        switchFragment(ProfileFragment())
+        switchFragment(MusicRecogniserFragment())
 
         binding.apply {
             navigationView.setNavigationItemSelectedListener {
                 when (it.itemId) {
                     R.id.music_recogniser_menu_item -> {
                         if (onScreenFragment !is LoginFragment) {
-                            switchFragment(LoginFragment())
+                            switchFragment(MusicRecogniserFragment())
                         }
                     }
 

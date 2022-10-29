@@ -75,7 +75,7 @@
     <string name="select_music_files_prompt_text">Select Music Files</string>
     <string name="identify_music_files_prompt_text">Identify Music Files</string>
     <string name="confirm_music_files_prompt_text">Confirm Changes</string>
-    
+
     <string name="user_profile_text">User Profile</string>
     <string name="user_id_text">User ID</string>
     <string name="full_name_text">Full Name</string>
@@ -95,4 +95,6 @@
     <string name="price_paid_text">Price Paid</string>
 
     <string name="refresh_text">Refresh</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
