@@ -12,12 +12,17 @@ class PreviousSubscriptionHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(currentSubscription: Subscription) {
         binding.previousSubscriptionIdTextView.text = currentSubscription.subscriptionID.toString()
-        binding.previousSubscriptionTransactionReferenceTextView.text = currentSubscription.transactionReference
+        binding.previousSubscriptionTransactionReferenceTextView.text =
+            currentSubscription.transactionReference
         binding.previousSubscriptionPlanTextView.text = currentSubscription.subscriptionType
-        binding.previousSubscriptionNumberOfRecognisedSongsTextView.text = currentSubscription.numberOfRecognisedSongs.toString()
-        binding.previousSubscriptionNumberOfSongsLeftTextView.text = currentSubscription.numberOfSongsLeft.toString()
-        binding.previousSubscriptionDateTextView.text = currentSubscription.subscriptionDate.toString()
-        binding.previousSubscriptionPricePaidTextView.text = PriceUtils.formatPrice(currentSubscription.pricePaid)
+        binding.previousSubscriptionNumberOfRecognisedSongsTextView.text =
+            currentSubscription.numberOfRecognisedSongs.toString()
+        binding.previousSubscriptionNumberOfSongsLeftTextView.text =
+            currentSubscription.numberOfSongsLeft.toString()
+        binding.previousSubscriptionDateTextView.text =
+            currentSubscription.subscriptionDate.toString()
+        binding.previousSubscriptionPricePaidTextView.text =
+            PriceUtils.formatPrice(currentSubscription.pricePaid)
     }
 }
 
@@ -30,12 +35,13 @@ class PreviousSubscriptionListAdapter(
     ): PreviousSubscriptionHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ListItemPreviousSubscriptionBinding.inflate(inflater, parent, false)
+
         return PreviousSubscriptionHolder(binding)
     }
 
     override fun onBindViewHolder(holder: PreviousSubscriptionHolder, position: Int) {
-        val crime = previousSubscriptions[position]
-        holder.bind(crime)
+        val currentSubscription = previousSubscriptions[position]
+        holder.bind(currentSubscription)
     }
 
     override fun getItemCount() = previousSubscriptions.size

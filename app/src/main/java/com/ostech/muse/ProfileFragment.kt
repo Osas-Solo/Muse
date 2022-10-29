@@ -89,6 +89,8 @@ class ProfileFragment : Fragment() {
             profileNestedScrollView.viewTreeObserver.addOnScrollChangedListener {
                 val scrollY = profileNestedScrollView.scrollY
 
+                Log.i(tag, "onViewCreated: scrollY: $scrollY")
+
                 if (scrollY > oldScrollYPosition) {
                     profileRefreshFloatingActionButton.hide()
                 } else {
