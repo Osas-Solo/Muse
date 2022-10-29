@@ -7,9 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.ostech.muse.api.MuseAPIBuilder
@@ -31,14 +33,18 @@ class ProfileFragment : Fragment() {
             "Cannot access binding because it is null. Is the view visible?"
         }
 
+    private lateinit var profileNestedScrollView: NestedScrollView
     private lateinit var profileProgressLayout: LinearLayout
 
+    private lateinit var profileRefreshFloatingActionButton: FloatingActionButton
     private lateinit var profileFullNameTextView: AppCompatTextView
     private lateinit var profileUserIDTextView: AppCompatTextView
     private lateinit var profileGenderTextView: AppCompatTextView
     private lateinit var profileEmailAddressTextView: AppCompatTextView
     private lateinit var profilePhoneNumberTextView: AppCompatTextView
     private lateinit var profileCurrentSubscriptionTextView: AppCompatTextView
+
+    private var oldScrollYPosition : Int = 0
 
     private var loggedInUser: User? = null
     private lateinit var previousSubscriptions: List<Subscription>
@@ -51,6 +57,8 @@ class ProfileFragment : Fragment() {
         _binding =
             FragmentProfileBinding.inflate(layoutInflater, container, false)
 
+        profileNestedScrollView = binding.profileNestedScrollView
+        profileRefreshFloatingActionButton = binding.profileRefreshFloatingActionButton
         profileProgressLayout = binding.profileProgressLayout
         profileFullNameTextView = binding.profileFullNameTextView
         profileUserIDTextView = binding.profileUserIdTextView
@@ -72,6 +80,22 @@ class ProfileFragment : Fragment() {
         loadPreviousSubscriptions()
 
         binding.apply {
+            profileNestedScrollView.viewTreeObserver.addOnScrollChangedListener {
+                val scrollY = profileNestedScrollView.scrollY
+
+                if (scrollY > oldScrollYPosition) {
+                    profileRefreshFloatingActionButton.hide()
+                } else {
+                    profileRefreshFloatingActionButton.show()
+                }
+
+                oldScrollYPosition = scrollY
+            }
+
+            profileRefreshFloatingActionButton.setOnClickListener {
+                loadProfile()
+                loadPreviousSubscriptions()
+            }
         }
     }
 
