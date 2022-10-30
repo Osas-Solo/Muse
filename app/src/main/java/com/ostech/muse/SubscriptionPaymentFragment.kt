@@ -76,7 +76,7 @@ class SubscriptionPaymentFragment : Fragment() {
     }
 
     private fun initializePaystack() {
-        PaystackSdk.initialize(applicationContext)
+        PaystackSdk.initialize(context)
         PaystackSdk.setPublicKey(BuildConfig.PAYSTACK_PUBLIC_KEY)
     }
 
