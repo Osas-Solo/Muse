@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ostech.muse.databinding.ListItemSubscriptionPlanBinding
 import com.ostech.muse.models.PriceUtils
 import com.ostech.muse.models.SubscriptionType
+import com.ostech.muse.session.SessionManager
 
 class SubscriptionTypeHolder(
     private val binding: ListItemSubscriptionPlanBinding
@@ -15,6 +16,18 @@ class SubscriptionTypeHolder(
         binding.subscriptionPlanPriceTextView.text =
             PriceUtils.formatPrice(currentSubscriptionPlan.price)
         binding.subscriptionPlanNumberOfSongsTextView.text = currentSubscriptionPlan.numberOfSongs.toString()
+
+        binding.subscriptionPlanSelectButton.setOnClickListener {
+            val subscriptionPlanID = currentSubscriptionPlan.subscriptionTypeID
+            val subscriptionPrice = currentSubscriptionPlan.price
+
+            switchToSubscriptionPaymentFragment(subscriptionPlanID, subscriptionPrice)
+        }
+    }
+
+    private fun switchToSubscriptionPaymentFragment(subscriptionPlanID: Int, subscriptionPrice: Double) {
+        SessionManager(this.binding.root.context).saveSubscriptionPlanID(subscriptionPlanID)
+        SessionManager(this.binding.root.context).saveSubscriptionPrice(subscriptionPrice)
     }
 }
 
