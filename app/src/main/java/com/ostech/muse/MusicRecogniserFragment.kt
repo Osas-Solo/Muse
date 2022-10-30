@@ -122,6 +122,8 @@ class MusicRecogniserFragment : Fragment() {
                     Log.i(tag, "Logged in user: $loggedInUser")
 
                     numberOfSongsLeft = loggedInUser?.currentSubscription?.numberOfSongsLeft ?: 0
+
+
                 } else {
                     val errorJSONString = it.errorBody()?.string()
                     Log.i(tag, "Profile response: $errorJSONString")
@@ -136,8 +138,9 @@ class MusicRecogniserFragment : Fragment() {
     }
 
     private fun switchToSubscriptionFragment() {
-        val navigationIntent = Intent(context, NavigationActivity::class.java)
-        startActivity(navigationIntent)
+        val navigationActivity = activity as NavigationActivity
+
+        navigationActivity.switchFragment(SubscriptionSelectionFragment())
     }
 
     override fun onDestroyView() {

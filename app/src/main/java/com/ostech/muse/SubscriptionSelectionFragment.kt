@@ -105,6 +105,8 @@ class SubscriptionSelectionFragment : Fragment() {
                     subscriptionPlansRecyclerView.adapter = SubscriptionTypeListAdapter(
                         subscriptionPlans
                     )
+
+                    subscriptionPlansProgressLayout.visibility = View.GONE
                 } else {
                     val errorJSONString = it.errorBody()?.string()
                     Log.i(tag, "Subscriptions response: $errorJSONString")
