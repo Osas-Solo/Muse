@@ -28,6 +28,9 @@ class SubscriptionTypeHolder(
     private fun switchToSubscriptionPaymentFragment(subscriptionPlanID: Int, subscriptionPrice: Double) {
         SessionManager(this.binding.root.context).saveSubscriptionPlanID(subscriptionPlanID)
         SessionManager(this.binding.root.context).saveSubscriptionPrice(subscriptionPrice)
+
+        val navigationActivity = this.binding.root.context as NavigationActivity
+        navigationActivity.switchFragment(SubscriptionPaymentFragment())
     }
 }
 
