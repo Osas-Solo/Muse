@@ -162,6 +162,7 @@ class LoginFragment : Fragment() {
                     val session = SessionManager(requireContext())
                     session.saveAuthToken(successJSON.sessionToken)
                     session.saveUserID(loggedInUser.userID)
+                    session.saveUserEmailAddress(loggedInUser.emailAddress)
 
                     context?.let { it1 ->
                         AlertDialog.Builder(it1)

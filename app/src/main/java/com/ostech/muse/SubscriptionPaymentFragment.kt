@@ -5,27 +5,19 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
-import com.google.gson.Gson
-import com.ostech.muse.api.MuseAPIBuilder
-import com.ostech.muse.api.NetworkUtil
+import co.paystack.android.Paystack
+import co.paystack.android.PaystackSdk
+import co.paystack.android.PaystackSdk.applicationContext
+import co.paystack.android.Transaction
+import co.paystack.android.model.Card
+import co.paystack.android.model.Charge
 import com.ostech.muse.databinding.FragmentSubscriptionPaymentBinding
-import com.ostech.muse.databinding.FragmentSubscriptionSelectionBinding
-import com.ostech.muse.models.ErrorResponse
 import com.ostech.muse.models.PriceUtils
-import com.ostech.muse.models.SubscriptionType
-import com.ostech.muse.models.SubscriptionTypeListResponse
 import com.ostech.muse.session.SessionManager
-import retrofit2.Response
-import java.io.IOException
 
 class SubscriptionPaymentFragment : Fragment() {
     private var _binding: FragmentSubscriptionPaymentBinding? = null
@@ -65,6 +57,8 @@ class SubscriptionPaymentFragment : Fragment() {
 
         paySubscriptionButton.text = subscriptionPriceText
 
+        initializePaystack()
+
         return binding.root
     }
 
@@ -75,9 +69,54 @@ class SubscriptionPaymentFragment : Fragment() {
         activity?.title = fragmentTitle
 
         binding.apply {
+            paySubscriptionButton.setOnClickListener {
+                paySubscription()
+            }
         }
     }
 
+    private fun initializePaystack() {
+        PaystackSdk.initialize(applicationContext)
+        PaystackSdk.setPublicKey(BuildConfig.PAYSTACK_PUBLIC_KEY)
+    }
+
+    private fun paySubscription() {
+        val cardNumber = cardNumberEditText.text.toString()
+        val cardExpiryDate = cardExpiryDateEditText.text.toString()
+        val cvv = cardCVVEditText.text.toString()
+
+        val cardExpiryArray = cardExpiryDate.split("/").toTypedArray()
+        val expiryMonth = cardExpiryArray[0].toInt()
+        val expiryYear = cardExpiryArray[1].toInt()
+
+        val card = Card(cardNumber, expiryMonth, expiryYear, cvv)
+        val emailAddress = context?.let { SessionManager(it).fetchEmailAddress() }!!
+
+        val charge = Charge()
+        charge.amount = (subscriptionPrice * 100).toInt()
+        charge.email = emailAddress
+        charge.card = card
+
+        PaystackSdk.chargeCard(activity, charge, object : Paystack.TransactionCallback {
+            override fun onSuccess(transaction: Transaction) {
+                parseResponse(transaction.reference)
+            }
+
+            override fun beforeValidate(transaction: Transaction) {
+                Log.d("Main Activity", "beforeValidate: " + transaction.reference)
+            }
+
+            override fun onError(error: Throwable, transaction: Transaction) {
+                Log.d("Main Activity", "onError: " + error.localizedMessage)
+                Log.d("Main Activity", "onError: $error")
+            }
+        })
+    }
+
+    private fun parseResponse(transactionReference: String) {
+        val message = "Payment Successful - $transactionReference"
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

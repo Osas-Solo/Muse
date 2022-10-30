@@ -10,6 +10,7 @@ class SessionManager (context: Context) {
     companion object {
         const val USER_TOKEN = "user_token"
         const val USER_ID = "user_id"
+        const val USER_EMAIL_ADDRESS = "user_email_address"
         const val SUBSCRIPTION_PLAN_ID = "subscription_plan_id"
         const val SUBSCRIPTION_AMOUNT = "subscription_amount"
     }
@@ -32,6 +33,16 @@ class SessionManager (context: Context) {
 
     fun fetchUserID(): Int {
         return sharedPreferences.getInt(USER_ID, 0)
+    }
+
+    fun saveUserEmailAddress(token: String) {
+        val editor = sharedPreferences.edit()
+        editor.putString(USER_EMAIL_ADDRESS, token)
+        editor.apply()
+    }
+
+    fun fetchEmailAddress(): String? {
+        return sharedPreferences.getString(USER_EMAIL_ADDRESS, null)
     }
 
     fun saveSubscriptionPlanID(subscriptionPlanID: Int) {
