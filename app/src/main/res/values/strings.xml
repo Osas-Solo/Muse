@@ -95,6 +95,13 @@
     <string name="price_paid_text">Price Paid</string>
 
     <string name="refresh_text">Refresh</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="pay_subscription_text">Pay Subscription</string>
+
+    <string name="subscription_selection_intro_text">To use this app, a subscription plan is required. \nPlease select a subscription plans below</string>
+    <string name="price_text">Price</string>
+    <string name="number_of_songs_text">Number of Songs</string>
+
+    <string name="select_subscription_text">Select Subscription</string>
+    <string name="subscription_plans_progress_text">Loading subscription plans</string>
 </resources>

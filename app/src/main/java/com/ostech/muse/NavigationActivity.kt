@@ -66,7 +66,7 @@ class NavigationActivity : AppCompatActivity() {
         }
     }
 
-    private fun switchFragment(destinationFragment: Fragment) {
+    fun switchFragment(destinationFragment: Fragment) {
         onScreenFragment = destinationFragment
 
         supportFragmentManager.commit {
