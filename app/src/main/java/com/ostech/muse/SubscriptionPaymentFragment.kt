@@ -5,13 +5,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.Fragment
 import co.paystack.android.Paystack
 import co.paystack.android.PaystackSdk
-import co.paystack.android.PaystackSdk.applicationContext
 import co.paystack.android.Transaction
 import co.paystack.android.model.Card
 import co.paystack.android.model.Charge
@@ -29,6 +29,7 @@ class SubscriptionPaymentFragment : Fragment() {
     private lateinit var cardNumberEditText: AppCompatEditText
     private lateinit var cardExpiryDateEditText: AppCompatEditText
     private lateinit var cardCVVEditText: AppCompatEditText
+    private lateinit var subscriptionPaymentProgressLayout: LinearLayout
     private lateinit var paySubscriptionButton: AppCompatButton
 
     private var subscriptionPlanID: Int = 0
@@ -45,6 +46,7 @@ class SubscriptionPaymentFragment : Fragment() {
         cardNumberEditText = binding.cardNumberEditText
         cardExpiryDateEditText = binding.cardExpiryDateEditText
         cardCVVEditText = binding.cardCvvEditText
+        subscriptionPaymentProgressLayout = binding.subscriptionPaymentProgressLayout
         paySubscriptionButton = binding.paySubscriptionButton
 
         subscriptionPlanID = context?.let { SessionManager(it).fetchSubscriptionPlanID() }!!
@@ -81,6 +83,9 @@ class SubscriptionPaymentFragment : Fragment() {
     }
 
     private fun paySubscription() {
+        subscriptionPaymentProgressLayout.visibility = View.VISIBLE
+        paySubscriptionButton.isEnabled = false
+
         val cardNumber = cardNumberEditText.text.toString()
         val cardExpiryDate = cardExpiryDateEditText.text.toString()
         val cvv = cardCVVEditText.text.toString()
@@ -99,6 +104,7 @@ class SubscriptionPaymentFragment : Fragment() {
 
         PaystackSdk.chargeCard(activity, charge, object : Paystack.TransactionCallback {
             override fun onSuccess(transaction: Transaction) {
+                subscriptionPaymentProgressLayout.visibility = View.INVISIBLE
                 parseResponse(transaction.reference)
             }
 
@@ -107,6 +113,9 @@ class SubscriptionPaymentFragment : Fragment() {
             }
 
             override fun onError(error: Throwable, transaction: Transaction) {
+                subscriptionPaymentProgressLayout.visibility = View.INVISIBLE
+                paySubscriptionButton.isEnabled = true
+
                 Log.d("Main Activity", "onError: " + error.localizedMessage)
                 Log.d("Main Activity", "onError: $error")
             }

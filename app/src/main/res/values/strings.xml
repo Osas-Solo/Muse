@@ -106,7 +106,7 @@
     <string name="subscription_plans_progress_text">Loading subscription plans</string>
 
     <string name="card_details_text">Card Details</string>
-    <string name="card_expiry_hint">Card Expiry</string>
+    <string name="card_expiry_hint">Card Expiry Date</string>
     <string name="card_number_hint">Card Number</string>
     <string name="card_cvv_hint">Card CVV</string>
 
@@ -114,6 +114,6 @@
     <string name="test_card_number">4084084084084081</string>
     <string name="test_card_expiry_date">10/23</string>
     <string name="test_cvv">408</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="subscription_payment_progress_text">Attempting to pay subscription,\nplease wait</string>
 </resources>
