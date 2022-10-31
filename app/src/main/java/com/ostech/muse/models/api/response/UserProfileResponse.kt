@@ -1,13 +1,12 @@
-package com.ostech.muse.models
-
+package com.ostech.muse.models.api.response
 
 import com.google.gson.annotations.SerializedName
 
-data class SubscriptionTypeResponse(
+data class UserProfileResponse(
     @SerializedName("status")
     val status: Int,
     @SerializedName("message")
     val message: String,
-    @SerializedName("subscriptionType")
-    val subscriptionType: SubscriptionType
+    @SerializedName("user")
+    val user: User,
 )

@@ -116,4 +116,10 @@
     <string name="test_cvv">408</string>
 
     <string name="subscription_payment_progress_text">Attempting to pay subscription,\nplease wait</string>
+
+    <string name="payment_error_message">
+        Sorry, an error occurred while trying to pay subscription. \nPlease ensure you have a strong internet connection
+    </string>
+
+    <string name="subscription_payment_success_message">Subscription payment was successful. You may now proceed to recognise songs</string>
 </resources>

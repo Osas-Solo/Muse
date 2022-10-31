@@ -6,18 +6,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import co.paystack.android.Paystack
 import co.paystack.android.PaystackSdk
 import co.paystack.android.Transaction
 import co.paystack.android.model.Card
 import co.paystack.android.model.Charge
+import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
+import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.databinding.FragmentSubscriptionPaymentBinding
+import com.ostech.muse.models.api.response.ErrorResponse
 import com.ostech.muse.models.PriceUtils
+import com.ostech.muse.models.api.response.Subscription
+import com.ostech.muse.models.api.response.UserSubscriptionResponse
 import com.ostech.muse.session.SessionManager
+import retrofit2.Response
+import java.io.IOException
 
 class SubscriptionPaymentFragment : Fragment() {
     private var _binding: FragmentSubscriptionPaymentBinding? = null
@@ -34,6 +44,8 @@ class SubscriptionPaymentFragment : Fragment() {
 
     private var subscriptionPlanID: Int = 0
     private var subscriptionPrice: Double = 0.0
+    private var userID: Int = 0
+    private lateinit var newSubscription: Subscription
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,6 +63,7 @@ class SubscriptionPaymentFragment : Fragment() {
 
         subscriptionPlanID = context?.let { SessionManager(it).fetchSubscriptionPlanID() }!!
         subscriptionPrice = context?.let { SessionManager(it).fetchSubscriptionPrice() }!!
+        userID = context?.let { SessionManager(it).fetchUserID() }!!
 
         val subscriptionPriceText = getString(
             R.string.pay_subscription_button_text,
@@ -105,27 +118,94 @@ class SubscriptionPaymentFragment : Fragment() {
         PaystackSdk.chargeCard(activity, charge, object : Paystack.TransactionCallback {
             override fun onSuccess(transaction: Transaction) {
                 subscriptionPaymentProgressLayout.visibility = View.INVISIBLE
-                parseResponse(transaction.reference)
+                completeTransaction(transaction.reference)
             }
 
             override fun beforeValidate(transaction: Transaction) {
-                Log.d("Main Activity", "beforeValidate: " + transaction.reference)
+                Log.d(tag, "beforeValidate: " + transaction.reference)
             }
 
             override fun onError(error: Throwable, transaction: Transaction) {
                 subscriptionPaymentProgressLayout.visibility = View.INVISIBLE
                 paySubscriptionButton.isEnabled = true
 
-                Log.d("Main Activity", "onError: " + error.localizedMessage)
-                Log.d("Main Activity", "onError: $error")
+                Log.d(tag, "onError: " + error.localizedMessage)
+                Log.d(tag, "onError: $error")
+
+                val paymentErrorSnackbar = view?.let {
+                    Snackbar.make(
+                        it,
+                        getText(R.string.payment_error_message),
+                        Snackbar.LENGTH_LONG
+                    )
+                }
+
+                paymentErrorSnackbar?.show()
             }
         })
     }
 
-    private fun parseResponse(transactionReference: String) {
-        val message = "Payment Successful - $transactionReference"
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    private fun completeTransaction(transactionReference: String) {
+        val transactionReferenceMessage = "Transaction reference - $transactionReference"
+        Log.i(tag, "completeTransaction: $transactionReferenceMessage")
+
+        val subscriptionPaymentResponse: LiveData<Response<UserSubscriptionResponse>> =
+            liveData {
+                try {
+                    val response = MuseAPIBuilder.museAPIService.paySubscription(
+                        userID,
+                        transactionReference,
+                        subscriptionPlanID,
+                        subscriptionPrice
+                    )
+
+                    emit(response)
+                } catch (connectionException: IOException) {
+                    Log.i(tag, "completeTransaction: $connectionException")
+                    val connectionErrorSnackbar = view?.let {
+                        Snackbar.make(
+                            it,
+                            getText(R.string.poor_internet_connection_message),
+                            Snackbar.LENGTH_LONG
+                        )
+                    }
+
+                    connectionErrorSnackbar?.show()
+                }
+            }
+
+        subscriptionPaymentResponse.observe(viewLifecycleOwner) { it ->
+            if (it.isSuccessful) {
+                val successJSON = it.body()
+                Log.i(tag, "Subscription payment response: $successJSON")
+
+                newSubscription = successJSON?.subscription!!
+                Log.i(tag, "Subscriptions: $newSubscription")
+
+                context?.let { it1 ->
+                    AlertDialog.Builder(it1)
+                        .setMessage(getText(R.string.subscription_payment_success_message))
+                        .setPositiveButton("OK") { _, _ -> switchToMusicRecogniserFragment() }
+                        .show()
+
+                    switchToMusicRecogniserFragment()
+                }
+            } else {
+                val errorJSONString = it.errorBody()?.string()
+                Log.i(tag, "Subscriptions response: $errorJSONString")
+                val errorJSON =
+                    Gson().fromJson(errorJSONString, ErrorResponse::class.java)
+                val errorMessage = errorJSON.error
+            }
+        }
     }
+
+    private fun switchToMusicRecogniserFragment() {
+        val navigationActivity = activity as NavigationActivity
+
+        navigationActivity.switchFragment(MusicRecogniserFragment())
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

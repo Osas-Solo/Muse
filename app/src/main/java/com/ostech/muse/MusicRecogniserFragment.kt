@@ -1,11 +1,11 @@
 package com.ostech.muse
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
@@ -17,9 +17,9 @@ import com.google.gson.Gson
 import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentMusicRecogniserBinding
-import com.ostech.muse.models.ErrorResponse
-import com.ostech.muse.models.User
-import com.ostech.muse.models.UserProfileResponse
+import com.ostech.muse.models.api.response.ErrorResponse
+import com.ostech.muse.models.api.response.User
+import com.ostech.muse.models.api.response.UserProfileResponse
 import com.ostech.muse.session.SessionManager
 import retrofit2.Response
 import java.io.IOException
@@ -43,7 +43,7 @@ class MusicRecogniserFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding =
             FragmentMusicRecogniserBinding.inflate(layoutInflater, container, false)
 
@@ -62,25 +62,12 @@ class MusicRecogniserFragment : Fragment() {
 
         binding.apply {
             selectMusicFilesButton.setOnClickListener {
-                numberOfSongsLeftToRecognise = getNumberOfSongsLeft()
-
-                if (numberOfSongsLeftToRecognise > 0) {
-
-                } else {
-                    context?.let { it1 ->
-                        AlertDialog.Builder(it1)
-                            .setMessage(getText(R.string.no_active_subscription_message))
-                            .setPositiveButton(R.string.pay_subscription_text) { _, _ -> switchToSubscriptionFragment() }
-                            .show()
-                    }
-                }
+                retrieveNumberOfSongsLeft()
             }
         }
     }
 
-    private fun getNumberOfSongsLeft(): Int {
-        var numberOfSongsLeft = 0
-
+    private fun retrieveNumberOfSongsLeft() {
         val userID = context?.let { SessionManager(it).fetchUserID() }
 
         if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
@@ -121,9 +108,20 @@ class MusicRecogniserFragment : Fragment() {
                     loggedInUser = successJSON?.user!!
                     Log.i(tag, "Logged in user: $loggedInUser")
 
-                    numberOfSongsLeft = loggedInUser?.currentSubscription?.numberOfSongsLeft ?: 0
+                    Log.i(tag, "getNumberOfSongsLeft: ${loggedInUser?.currentSubscription?.numberOfSongsLeft}")
 
+                    numberOfSongsLeftToRecognise = loggedInUser?.currentSubscription?.numberOfSongsLeft ?: 0
 
+                    if (numberOfSongsLeftToRecognise > 0) {
+                        Toast.makeText(context, "You have $numberOfSongsLeftToRecognise songs left to recognise", Toast.LENGTH_LONG).show()
+                    } else {
+                        context?.let { it1 ->
+                            AlertDialog.Builder(it1)
+                                .setMessage(getText(R.string.no_active_subscription_message))
+                                .setPositiveButton(R.string.pay_subscription_text) { _, _ -> switchToSubscriptionFragment() }
+                                .show()
+                        }
+                    }
                 } else {
                     val errorJSONString = it.errorBody()?.string()
                     Log.i(tag, "Profile response: $errorJSONString")
@@ -133,8 +131,6 @@ class MusicRecogniserFragment : Fragment() {
                 }
             }
         }
-
-        return numberOfSongsLeft
     }
 
     private fun switchToSubscriptionFragment() {

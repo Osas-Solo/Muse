@@ -22,10 +22,10 @@ import com.google.gson.Gson
 import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentLoginBinding
-import com.ostech.muse.models.ErrorResponse
+import com.ostech.muse.models.api.response.ErrorResponse
 import com.ostech.muse.models.SignupDetailsVerification
-import com.ostech.muse.models.User
-import com.ostech.muse.models.UserLoginResponse
+import com.ostech.muse.models.api.response.User
+import com.ostech.muse.models.api.response.UserLoginResponse
 import com.ostech.muse.session.SessionManager
 import retrofit2.Response
 import java.io.IOException

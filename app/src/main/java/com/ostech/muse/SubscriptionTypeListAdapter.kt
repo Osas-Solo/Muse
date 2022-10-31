@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ostech.muse.databinding.ListItemSubscriptionPlanBinding
 import com.ostech.muse.models.PriceUtils
-import com.ostech.muse.models.SubscriptionType
+import com.ostech.muse.models.api.response.SubscriptionType
 import com.ostech.muse.session.SessionManager
 
 class SubscriptionTypeHolder(

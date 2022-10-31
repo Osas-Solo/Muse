@@ -19,11 +19,11 @@ import com.google.gson.Gson
 import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentProfileBinding
-import com.ostech.muse.models.ErrorResponse
-import com.ostech.muse.models.Subscription
-import com.ostech.muse.models.User
-import com.ostech.muse.models.UserProfileResponse
-import com.ostech.muse.models.UserSubscriptionListResponse
+import com.ostech.muse.models.api.response.ErrorResponse
+import com.ostech.muse.models.api.response.Subscription
+import com.ostech.muse.models.api.response.User
+import com.ostech.muse.models.api.response.UserProfileResponse
+import com.ostech.muse.models.api.response.UserSubscriptionListResponse
 import com.ostech.muse.session.SessionManager
 import retrofit2.Response
 import java.io.IOException

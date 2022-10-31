@@ -16,9 +16,9 @@ import com.google.gson.Gson
 import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentSubscriptionSelectionBinding
-import com.ostech.muse.models.ErrorResponse
-import com.ostech.muse.models.SubscriptionType
-import com.ostech.muse.models.SubscriptionTypeListResponse
+import com.ostech.muse.models.api.response.ErrorResponse
+import com.ostech.muse.models.api.response.SubscriptionType
+import com.ostech.muse.models.api.response.SubscriptionTypeListResponse
 import retrofit2.Response
 import java.io.IOException
 

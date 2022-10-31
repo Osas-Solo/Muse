@@ -1,14 +1,12 @@
 package com.ostech.muse.api
 
-import com.ostech.muse.models.Subscription
-import com.ostech.muse.models.SubscriptionType
-import com.ostech.muse.models.SubscriptionTypeListResponse
-import com.ostech.muse.models.SubscriptionTypeResponse
-import com.ostech.muse.models.UserLoginResponse
-import com.ostech.muse.models.UserProfileResponse
-import com.ostech.muse.models.UserSignupResponse
-import com.ostech.muse.models.UserSubscriptionListResponse
-import com.ostech.muse.models.UserSubscriptionResponse
+import com.ostech.muse.models.api.response.SubscriptionTypeListResponse
+import com.ostech.muse.models.api.response.SubscriptionTypeResponse
+import com.ostech.muse.models.api.response.UserLoginResponse
+import com.ostech.muse.models.api.response.UserProfileResponse
+import com.ostech.muse.models.api.response.UserSignupResponse
+import com.ostech.muse.models.api.response.UserSubscriptionListResponse
+import com.ostech.muse.models.api.response.UserSubscriptionResponse
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded

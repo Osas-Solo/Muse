@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ostech.muse.databinding.ListItemPreviousSubscriptionBinding
 import com.ostech.muse.models.PriceUtils
-import com.ostech.muse.models.Subscription
+import com.ostech.muse.models.api.response.Subscription
 
 class PreviousSubscriptionHolder(
     private val binding: ListItemPreviousSubscriptionBinding
