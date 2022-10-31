@@ -1,11 +1,13 @@
 package com.ostech.muse
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
@@ -22,6 +24,7 @@ import com.ostech.muse.models.api.response.User
 import com.ostech.muse.models.api.response.UserProfileResponse
 import com.ostech.muse.session.SessionManager
 import retrofit2.Response
+import java.io.File
 import java.io.IOException
 
 class MusicRecogniserFragment : Fragment() {
@@ -38,6 +41,9 @@ class MusicRecogniserFragment : Fragment() {
     private var numberOfSongsLeftToRecognise: Int = 0
 
     private var loggedInUser: User? = null
+
+    private var audioFilesURIs = listOf<Uri>()
+    private var audioFiles = mutableListOf<File>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,12 +68,12 @@ class MusicRecogniserFragment : Fragment() {
 
         binding.apply {
             selectMusicFilesButton.setOnClickListener {
-                retrieveNumberOfSongsLeft()
+                selectMusicFiles()
             }
         }
     }
 
-    private fun retrieveNumberOfSongsLeft() {
+    private fun selectMusicFiles() {
         val userID = context?.let { SessionManager(it).fetchUserID() }
 
         if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
@@ -113,7 +119,10 @@ class MusicRecogniserFragment : Fragment() {
                     numberOfSongsLeftToRecognise = loggedInUser?.currentSubscription?.numberOfSongsLeft ?: 0
 
                     if (numberOfSongsLeftToRecognise > 0) {
-                        Toast.makeText(context, "You have $numberOfSongsLeftToRecognise songs left to recognise", Toast.LENGTH_LONG).show()
+                        val audioFileIntent = Intent()
+                        audioFileIntent.type = "audio/*"
+
+                        startAudioFileChooser.launch(audioFileIntent.type)
                     } else {
                         context?.let { it1 ->
                             AlertDialog.Builder(it1)
@@ -137,6 +146,36 @@ class MusicRecogniserFragment : Fragment() {
         val navigationActivity = activity as NavigationActivity
 
         navigationActivity.switchFragment(SubscriptionSelectionFragment())
+    }
+
+    private val startAudioFileChooser = registerForActivityResult(
+        ActivityResultContracts.GetMultipleContents()
+    ) { audioFilesPickerResult ->
+        if (audioFilesPickerResult != null) {
+            audioFilesURIs = audioFilesPickerResult.toList()
+            Log.i(tag, "Audio files URIs: $audioFilesURIs")
+
+            if (audioFilesURIs.size > numberOfSongsLeftToRecognise) {
+                val musicFilesLimitSnackbar = view?.let {
+                    Snackbar.make(
+                        it,
+                        getString(R.string.music_files_selection_limit_text, numberOfSongsLeftToRecognise),
+                        Snackbar.LENGTH_LONG
+                    )
+                }
+
+                musicFilesLimitSnackbar?.show()
+            } else {
+                audioFilesURIs.forEach { currentAudioFileURI ->
+                    val currentAudioFile = currentAudioFileURI.path?.let { File(it) }
+                    Log.i(tag, "Audio file: $currentAudioFile")
+
+                    audioFiles.add(currentAudioFile!!)
+                }
+
+                Log.i(tag, "Audio files: $audioFiles")
+            }
+        }
     }
 
     override fun onDestroyView() {

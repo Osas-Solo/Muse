@@ -122,4 +122,6 @@
     </string>
 
     <string name="subscription_payment_success_message">Subscription payment was successful. You may now proceed to recognise songs</string>
+    
+    <string name="music_files_selection_limit_text">You have selected more songs than you have left in your subscription plan. \nPlease select %1$d songs or less.</string>
 </resources>
