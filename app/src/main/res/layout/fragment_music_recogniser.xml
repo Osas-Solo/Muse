@@ -31,14 +31,13 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/music_files_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="100dp"/>
+            android:layout_height="match_parent"/>
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/confirm_recognition_floating_action_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="bottom"
             android:gravity="bottom"
             android:text="@string/confirm_music_files_prompt_text"
             app:fabSize="normal"

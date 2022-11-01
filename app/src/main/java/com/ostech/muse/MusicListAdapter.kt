@@ -10,7 +10,7 @@ class MusicHolder(
     private val binding: ListItemMusicBinding
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(currentMusic: Music) {
-        binding.musicFileNameTextView.text = currentMusic.file.name
+        binding.musicCheckBox.text = currentMusic.file.name
     }
 }
 
