@@ -13,6 +13,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/music_play_image_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/play_button_text"
+        android:minHeight="48dp"
+        android:src="@drawable/ic_play"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/music_check_box" />
+
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/music_file_name_text_view"
         android:layout_width="wrap_content"
@@ -29,12 +40,152 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="10dp"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/music_play_image_button">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_title_label_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/music_title_text"
+                    android:layout_marginEnd="10dp"
+                    android:layout_gravity="start" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_title_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subscription_payment_progress_text"
+                    android:layout_marginStart="10dp"
+                    android:layout_gravity="end"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_artist_label_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/music_artist_text"
+                    android:layout_marginEnd="10dp"
+                    android:layout_gravity="start" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_artist_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subscription_payment_progress_text"
+                    android:layout_marginStart="10dp"
+                    android:layout_gravity="end"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_album_label_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/music_album_text"
+                    android:layout_marginEnd="10dp"
+                    android:layout_gravity="start" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_album_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subscription_payment_progress_text"
+                    android:layout_marginStart="10dp"
+                    android:layout_gravity="end"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_genre_label_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/music_genre_text"
+                    android:layout_marginEnd="10dp"
+                    android:layout_gravity="start" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_genre_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subscription_payment_progress_text"
+                    android:layout_marginStart="10dp"
+                    android:layout_gravity="end"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_track_number_label_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/music_track_number_text"
+                    android:layout_marginEnd="10dp"
+                    android:layout_gravity="start" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_track_number_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subscription_payment_progress_text"
+                    android:layout_marginStart="10dp"
+                    android:layout_gravity="end"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_year_label_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/music_year_text"
+                    android:layout_marginEnd="10dp"
+                    android:layout_gravity="start" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/music_year_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/subscription_payment_progress_text"
+                    android:layout_marginStart="10dp"
+                    android:layout_gravity="end"/>
+            </LinearLayout>
 
         </LinearLayout>
 

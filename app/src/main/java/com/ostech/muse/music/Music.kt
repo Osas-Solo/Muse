@@ -5,6 +5,7 @@ import java.io.File
 import java.util.*
 
 data class Music(
+    val isSelected: Boolean = false,
     val file: File,
     @SerializedName("title")
     val title: String?,

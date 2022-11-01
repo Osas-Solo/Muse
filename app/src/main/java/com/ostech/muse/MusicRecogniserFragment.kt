@@ -13,6 +13,8 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
@@ -39,6 +41,7 @@ class MusicRecogniserFragment : Fragment() {
     private lateinit var selectMusicFilesButton: AppCompatButton
     private lateinit var identifyMusicFilesButton: AppCompatButton
     private lateinit var confirmRecognitionFloatingActionButton: ExtendedFloatingActionButton
+    private lateinit var musicFilesRecyclerView: RecyclerView
 
     private var numberOfSongsLeftToRecognise: Int = 0
 
@@ -58,6 +61,9 @@ class MusicRecogniserFragment : Fragment() {
         selectMusicFilesButton = binding.selectMusicFilesButton
         identifyMusicFilesButton = binding.identifyMusicFilesButton
         confirmRecognitionFloatingActionButton = binding.confirmRecognitionFloatingActionButton
+        musicFilesRecyclerView = binding.musicFilesRecyclerView
+
+        musicFilesRecyclerView.layoutManager = LinearLayoutManager(context)
 
         return binding.root
     }
@@ -173,6 +179,7 @@ class MusicRecogniserFragment : Fragment() {
                     Log.i(tag, "Audio file: $currentAudioFile")
 
                     audioFiles.add(Music(
+                        false,
                         currentAudioFile!!,
                         null,
                         null,
@@ -184,6 +191,10 @@ class MusicRecogniserFragment : Fragment() {
                 }
 
                 Log.i(tag, "Audio files: $audioFiles")
+
+                musicFilesRecyclerView.adapter = MusicListAdapter(
+                    audioFiles
+                )
             }
         }
     }
