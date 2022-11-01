@@ -22,9 +22,11 @@ import com.ostech.muse.databinding.FragmentMusicRecogniserBinding
 import com.ostech.muse.models.api.response.ErrorResponse
 import com.ostech.muse.models.api.response.User
 import com.ostech.muse.models.api.response.UserProfileResponse
+import com.ostech.muse.music.Music
 import com.ostech.muse.session.SessionManager
 import retrofit2.Response
 import java.io.File
+import java.nio.file.Files
 import java.io.IOException
 
 class MusicRecogniserFragment : Fragment() {
@@ -43,7 +45,7 @@ class MusicRecogniserFragment : Fragment() {
     private var loggedInUser: User? = null
 
     private var audioFilesURIs = listOf<Uri>()
-    private var audioFiles = mutableListOf<File>()
+    private var audioFiles = mutableListOf<Music>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -170,7 +172,15 @@ class MusicRecogniserFragment : Fragment() {
                     val currentAudioFile = currentAudioFileURI.path?.let { File(it) }
                     Log.i(tag, "Audio file: $currentAudioFile")
 
-                    audioFiles.add(currentAudioFile!!)
+                    audioFiles.add(Music(
+                        currentAudioFile!!,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                    ))
                 }
 
                 Log.i(tag, "Audio files: $audioFiles")
