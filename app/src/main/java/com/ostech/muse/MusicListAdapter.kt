@@ -2,6 +2,7 @@ package com.ostech.muse
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.recyclerview.widget.RecyclerView
 import com.ostech.muse.databinding.ListItemMusicBinding
 import com.ostech.muse.music.Music
@@ -9,8 +10,17 @@ import com.ostech.muse.music.Music
 class MusicHolder(
     private val binding: ListItemMusicBinding
 ) : RecyclerView.ViewHolder(binding.root) {
+    private var musicCheckBox = binding.musicCheckBox
+    private var musicPlayButton = binding.musicPlayImageButton
+    private var musicTitleTextView = binding.musicTitleTextView
+    private var musicArtistTextView = binding.musicArtistTextView
+    private var musicAlbumTextView = binding.musicAlbumTextView
+    private var musicGenreTextView = binding.musicGenreTextView
+    private var musicTrackNumberTextView = binding.musicTrackNumberTextView
+    private var musicYearTextView = binding.musicYearTextView
+
     fun bind(currentMusic: Music) {
-        binding.musicCheckBox.text = currentMusic.file.name
+        musicCheckBox.text = currentMusic.file.name
     }
 }
 

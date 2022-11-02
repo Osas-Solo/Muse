@@ -42,10 +42,12 @@ class MusicRecogniserFragment : Fragment() {
     private lateinit var selectMusicFilesButton: AppCompatButton
     private lateinit var identifyMusicFilesButton: AppCompatButton
     private lateinit var confirmRecognitionFloatingActionButton: ExtendedFloatingActionButton
+    private lateinit var clearMusicFilesButton: AppCompatButton
     private lateinit var musicRecogniserProgressLayout: LinearLayout
     private lateinit var musicFilesRecyclerView: RecyclerView
 
     private var numberOfSongsLeftToRecognise: Int = 0
+    private var numberOfSelectedSongs: Int = 0
 
     private var loggedInUser: User? = null
 
@@ -63,6 +65,7 @@ class MusicRecogniserFragment : Fragment() {
         selectMusicFilesButton = binding.selectMusicFilesButton
         identifyMusicFilesButton = binding.identifyMusicFilesButton
         confirmRecognitionFloatingActionButton = binding.confirmRecognitionFloatingActionButton
+        clearMusicFilesButton = binding.clearMusicFilesButton
         musicRecogniserProgressLayout = binding.musicRecogniserProgressLayout
         musicFilesRecyclerView = binding.musicFilesRecyclerView
 
@@ -81,10 +84,16 @@ class MusicRecogniserFragment : Fragment() {
             selectMusicFilesButton.setOnClickListener {
                 selectMusicFiles()
             }
+
+            clearMusicFilesButton.setOnClickListener {
+                clearSelectedMusicFiles()
+            }
         }
     }
 
     private fun selectMusicFiles() {
+        selectMusicFilesButton.isEnabled = false
+
         val userID = context?.let { SessionManager(it).fetchUserID() }
 
         if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
@@ -128,12 +137,15 @@ class MusicRecogniserFragment : Fragment() {
                     Log.i(tag, "getNumberOfSongsLeft: ${loggedInUser?.currentSubscription?.numberOfSongsLeft}")
 
                     numberOfSongsLeftToRecognise = loggedInUser?.currentSubscription?.numberOfSongsLeft ?: 0
+                    numberOfSelectedSongs = audioFiles.size
 
-                    if (numberOfSongsLeftToRecognise > 0) {
+                    if (numberOfSongsLeftToRecognise > 0 && numberOfSelectedSongs <= numberOfSongsLeftToRecognise) {
                         val audioFileIntent = Intent()
                         audioFileIntent.type = "audio/*"
 
                         startAudioFileChooser.launch(audioFileIntent.type)
+                    } else if (numberOfSelectedSongs > numberOfSongsLeftToRecognise) {
+                        showMusicFilesLimitSnackbar()
                     } else {
                         context?.let { it1 ->
                             AlertDialog.Builder(it1)
@@ -151,6 +163,8 @@ class MusicRecogniserFragment : Fragment() {
                 }
             }
         }
+
+        selectMusicFilesButton.isEnabled = true
     }
 
     private fun switchToSubscriptionFragment() {
@@ -167,19 +181,10 @@ class MusicRecogniserFragment : Fragment() {
             Log.i(tag, "Audio files URIs: $audioFilesURIs")
 
             if (audioFilesURIs.size > numberOfSongsLeftToRecognise) {
-                val musicFilesLimitSnackbar = view?.let {
-                    Snackbar.make(
-                        it,
-                        getString(R.string.music_files_selection_limit_text, numberOfSongsLeftToRecognise),
-                        Snackbar.LENGTH_LONG
-                    )
-                }
-
-                musicFilesLimitSnackbar?.show()
+                showMusicFilesLimitSnackbar()
             } else {
                 audioFilesURIs.forEach { currentAudioFileURI ->
                     val currentAudioFile = currentAudioFileURI.path?.let { File(it) }
-                    Log.i(tag, "Audio file: $currentAudioFile")
 
                     audioFiles.add(Music(
                         false,
@@ -198,8 +203,34 @@ class MusicRecogniserFragment : Fragment() {
                 musicFilesRecyclerView.adapter = MusicListAdapter(
                     audioFiles
                 )
+
+                identifyMusicFilesButton.isEnabled = true
+                clearMusicFilesButton.isEnabled = true
             }
         }
+    }
+
+    private fun showMusicFilesLimitSnackbar() {
+        val musicFilesLimitSnackbar = view?.let {
+            Snackbar.make(
+                it,
+                getString(R.string.music_files_selection_limit_text, numberOfSongsLeftToRecognise),
+                Snackbar.LENGTH_LONG
+            )
+        }
+
+        musicFilesLimitSnackbar?.show()
+    }
+
+    private fun clearSelectedMusicFiles() {
+        audioFiles.clear()
+        musicFilesRecyclerView.adapter = MusicListAdapter(
+            audioFiles
+        )
+
+        identifyMusicFilesButton.isEnabled = false
+        clearMusicFilesButton.isEnabled = false
+        confirmRecognitionFloatingActionButton.isEnabled = false
     }
 
     override fun onDestroyView() {
