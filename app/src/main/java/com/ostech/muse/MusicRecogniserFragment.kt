@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
@@ -41,6 +42,7 @@ class MusicRecogniserFragment : Fragment() {
     private lateinit var selectMusicFilesButton: AppCompatButton
     private lateinit var identifyMusicFilesButton: AppCompatButton
     private lateinit var confirmRecognitionFloatingActionButton: ExtendedFloatingActionButton
+    private lateinit var musicRecogniserProgressLayout: LinearLayout
     private lateinit var musicFilesRecyclerView: RecyclerView
 
     private var numberOfSongsLeftToRecognise: Int = 0
@@ -61,6 +63,7 @@ class MusicRecogniserFragment : Fragment() {
         selectMusicFilesButton = binding.selectMusicFilesButton
         identifyMusicFilesButton = binding.identifyMusicFilesButton
         confirmRecognitionFloatingActionButton = binding.confirmRecognitionFloatingActionButton
+        musicRecogniserProgressLayout = binding.musicRecogniserProgressLayout
         musicFilesRecyclerView = binding.musicFilesRecyclerView
 
         musicFilesRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -89,7 +92,7 @@ class MusicRecogniserFragment : Fragment() {
                 Snackbar.make(
                     it,
                     getString(R.string.no_internet_connection_message,
-                        "load number of songs left in subscription plan"),
+                        "select music files"),
                     Snackbar.LENGTH_LONG
                 )
             }

@@ -28,19 +28,45 @@
             android:layout_margin="20dp"
             android:enabled="false"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/music_files_recycler_view"
+        <LinearLayout
+            android:id="@+id/music_recogniser_progress_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginBottom="30dp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/music_recogniser_progress_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/music_recogniser_progress_text"
+                android:textAlignment="center"
+                android:padding="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center"/>
+
+            <ProgressBar
+                android:id="@+id/music_recogniser_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:indeterminate="true"/>
+        </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/confirm_recognition_floating_action_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:gravity="bottom"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:text="@string/confirm_music_files_prompt_text"
             app:fabSize="normal"
             android:enabled="false"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/music_files_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
