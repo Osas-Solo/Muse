@@ -133,6 +133,7 @@
     <string name="music_track_number_text">Track\nNumber</string>
     <string name="music_year_text">Year</string>
     <string name="play_button_text">Play</string>
+    <string name="remove_button_text">Remove</string>
 
     <string name="music_recogniser_progress_text">Attempting to perform music recognition,\nplease wait</string>
 </resources>

@@ -1,22 +1,24 @@
 package com.ostech.muse.music
 
+import android.net.Uri
 import com.google.gson.annotations.SerializedName
 import java.io.File
 import java.util.*
 
 data class Music(
-    val isSelected: Boolean = false,
+    var isSelected: Boolean = false,
+    val uri: Uri,
     val file: File,
     @SerializedName("title")
-    val title: String?,
+    var title: String?,
     @SerializedName("artist[0]")
-    val artist: String?,
+    var artist: String?,
     @SerializedName("album.name")
-    val album: String?,
+    var album: String?,
     @SerializedName("genres[0]")
-    val genre: String?,
+    var genre: String?,
     @SerializedName("release_date")
-    val year: Date?,
+    var year: Date?,
     @SerializedName("track")
-    val trackNumber: Int?,
+    var trackNumber: Int?,
 )

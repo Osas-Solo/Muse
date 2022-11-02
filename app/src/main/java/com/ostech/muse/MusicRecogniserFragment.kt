@@ -2,6 +2,7 @@ package com.ostech.muse
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +29,7 @@ import com.ostech.muse.models.api.response.User
 import com.ostech.muse.models.api.response.UserProfileResponse
 import com.ostech.muse.music.Music
 import com.ostech.muse.session.SessionManager
+import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.io.File
 import java.nio.file.Files
@@ -82,7 +85,9 @@ class MusicRecogniserFragment : Fragment() {
 
         binding.apply {
             selectMusicFilesButton.setOnClickListener {
-                selectMusicFiles()
+                lifecycleScope.launch {
+                    selectMusicFiles()
+                }
             }
 
             clearMusicFilesButton.setOnClickListener {
@@ -91,7 +96,7 @@ class MusicRecogniserFragment : Fragment() {
         }
     }
 
-    private fun selectMusicFiles() {
+    private suspend fun selectMusicFiles() {
         selectMusicFilesButton.isEnabled = false
 
         val userID = context?.let { SessionManager(it).fetchUserID() }
@@ -143,6 +148,17 @@ class MusicRecogniserFragment : Fragment() {
                         val audioFileIntent = Intent()
                         audioFileIntent.type = "audio/*"
 
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            activity?.requestPermissions(
+                                arrayOf(
+                                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                    android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
+                                ),
+                                1
+                            )
+                        }
+
                         startAudioFileChooser.launch(audioFileIntent.type)
                     } else if (numberOfSelectedSongs > numberOfSongsLeftToRecognise) {
                         showMusicFilesLimitSnackbar()
@@ -163,8 +179,6 @@ class MusicRecogniserFragment : Fragment() {
                 }
             }
         }
-
-        selectMusicFilesButton.isEnabled = true
     }
 
     private fun switchToSubscriptionFragment() {
@@ -188,6 +202,7 @@ class MusicRecogniserFragment : Fragment() {
 
                     audioFiles.add(Music(
                         false,
+                        currentAudioFileURI,
                         currentAudioFile!!,
                         null,
                         null,
@@ -204,10 +219,14 @@ class MusicRecogniserFragment : Fragment() {
                     audioFiles
                 )
 
-                identifyMusicFilesButton.isEnabled = true
-                clearMusicFilesButton.isEnabled = true
+                if (audioFiles.isNotEmpty()) {
+                    identifyMusicFilesButton.isEnabled = true
+                    clearMusicFilesButton.isEnabled = true
+                }
             }
         }
+
+        selectMusicFilesButton.isEnabled = true
     }
 
     private fun showMusicFilesLimitSnackbar() {
