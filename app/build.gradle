@@ -16,6 +16,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "PAYSTACK_PUBLIC_KEY", PAYSTACK_PUBLIC_KEY)
+        buildConfigField("String", "ACR_CLOUD_HOST", ACR_CLOUD_HOST)
+        buildConfigField("String", "ACR_CLOUD_ACCESS_KEY", ACR_CLOUD_ACCESS_KEY)
+        buildConfigField("String", "ACR_CLOUD_SECRET_KEY", ACR_CLOUD_SECRET_KEY)
     }
 
     buildTypes {
