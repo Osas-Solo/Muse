@@ -2,7 +2,6 @@ package com.ostech.muse
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -32,7 +31,6 @@ import com.ostech.muse.session.SessionManager
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.io.File
-import java.nio.file.Files
 import java.io.IOException
 
 class MusicRecogniserFragment : Fragment() {
@@ -105,8 +103,10 @@ class MusicRecogniserFragment : Fragment() {
             val noNetworkSnackbar = view?.let {
                 Snackbar.make(
                     it,
-                    getString(R.string.no_internet_connection_message,
-                        "select music files"),
+                    getString(
+                        R.string.no_internet_connection_message,
+                        "select music files"
+                    ),
                     Snackbar.LENGTH_LONG
                 )
             }
@@ -139,25 +139,18 @@ class MusicRecogniserFragment : Fragment() {
                     loggedInUser = successJSON?.user!!
                     Log.i(tag, "Logged in user: $loggedInUser")
 
-                    Log.i(tag, "getNumberOfSongsLeft: ${loggedInUser?.currentSubscription?.numberOfSongsLeft}")
+                    Log.i(
+                        tag,
+                        "getNumberOfSongsLeft: ${loggedInUser?.currentSubscription?.numberOfSongsLeft}"
+                    )
 
-                    numberOfSongsLeftToRecognise = loggedInUser?.currentSubscription?.numberOfSongsLeft ?: 0
+                    numberOfSongsLeftToRecognise =
+                        loggedInUser?.currentSubscription?.numberOfSongsLeft ?: 0
                     numberOfSelectedSongs = audioFiles.size
 
                     if (numberOfSongsLeftToRecognise > 0 && numberOfSelectedSongs <= numberOfSongsLeftToRecognise) {
                         val audioFileIntent = Intent()
                         audioFileIntent.type = "audio/*"
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            activity?.requestPermissions(
-                                arrayOf(
-                                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                    android.Manifest.permission.MANAGE_EXTERNAL_STORAGE
-                                ),
-                                1
-                            )
-                        }
 
                         startAudioFileChooser.launch(audioFileIntent.type)
                     } else if (numberOfSelectedSongs > numberOfSongsLeftToRecognise) {
@@ -200,17 +193,19 @@ class MusicRecogniserFragment : Fragment() {
                 audioFilesURIs.forEach { currentAudioFileURI ->
                     val currentAudioFile = currentAudioFileURI.path?.let { File(it) }
 
-                    audioFiles.add(Music(
-                        false,
-                        currentAudioFileURI,
-                        currentAudioFile!!,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                    ))
+                    audioFiles.add(
+                        Music(
+                            false,
+                            currentAudioFileURI,
+                            currentAudioFile!!,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                        )
+                    )
                 }
 
                 Log.i(tag, "Audio files: $audioFiles")

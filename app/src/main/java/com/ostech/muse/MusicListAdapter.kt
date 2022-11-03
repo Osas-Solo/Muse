@@ -51,22 +51,23 @@ class MusicHolder(
 
     private fun playMusic(currentMusic: Music) {
         if (musicPlayer.isPlaying) {
-            musicPlayer.stop()
-        }
-
-        try {
-//            val musicFileDescriptor = binding.root.context.assets.openFd(musicFile.path)
-//            musicPlayer.setDataSource(musicFileDescriptor.fileDescriptor)
-            musicPlayer.setDataSource(currentMusic.uri.toString())
-            musicPlayer.prepare()
-            musicPlayer.start()
-        } catch (e: IOException) {
-            Log.e("Music Holder", "playMusic: $e")
+            stopMusic()
+        } else {
+            try {
+                musicPlayer.setDataSource(this.binding.root.context, currentMusic.uri)
+                musicPlayer.prepare()
+                musicPlayer.start()
+                Log.i("Music Holder", "playMusic: Now playing: ${currentMusic.file.name}")
+            } catch (e: IOException) {
+                Log.e("Music Holder", "playMusic: $e")
+            }
         }
     }
 
-    private fun removeMusic(musicFileIndex: Int) {
-
+    fun stopMusic() {
+        musicPlayer.stop()
+        musicPlayer.reset()
+        Log.i("Music Holder", "playMusic: Pausing music")
     }
 }
 
@@ -88,8 +89,14 @@ class MusicListAdapter(
         holder.bind(currentMusic)
 
         holder.musicRemoveButton.setOnClickListener {
-            musicList.removeAt(position)
+            removeMusic(position)
+            holder.stopMusic()
         }
+    }
+
+    private fun removeMusic(musicFileIndex: Int) {
+        musicList.removeAt(musicFileIndex)
+        notifyDataSetChanged()
     }
 
     override fun getItemCount() = musicList.size
