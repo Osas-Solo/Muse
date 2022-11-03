@@ -242,6 +242,8 @@ class MusicRecogniserFragment : Fragment() {
             audioFiles
         )
 
+
+
         identifyMusicFilesButton.isEnabled = false
         clearMusicFilesButton.isEnabled = false
         confirmRecognitionFloatingActionButton.isEnabled = false
