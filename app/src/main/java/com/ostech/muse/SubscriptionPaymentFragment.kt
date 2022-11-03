@@ -51,7 +51,7 @@ class SubscriptionPaymentFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding =
             FragmentSubscriptionPaymentBinding.inflate(layoutInflater, container, false)
 

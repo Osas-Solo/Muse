@@ -59,7 +59,7 @@ class MusicRecogniserFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding =
             FragmentMusicRecogniserBinding.inflate(layoutInflater, container, false)
 
@@ -237,12 +237,16 @@ class MusicRecogniserFragment : Fragment() {
     }
 
     private fun clearSelectedMusicFiles() {
+        for (i in audioFiles.indices) {
+            val musicHolder = musicFilesRecyclerView.findViewHolderForAdapterPosition(i)
+                    as MusicHolder
+            musicHolder.stopMusic()
+        }
+
         audioFiles.clear()
         musicFilesRecyclerView.adapter = MusicListAdapter(
             audioFiles
         )
-
-
 
         identifyMusicFilesButton.isEnabled = false
         clearMusicFilesButton.isEnabled = false

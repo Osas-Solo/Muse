@@ -52,7 +52,7 @@ class LoginFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding =
             FragmentLoginBinding.inflate(layoutInflater, container, false)
 
@@ -109,6 +109,7 @@ class LoginFragment : Fragment() {
 
     private fun loginUser() {
         toggleLoginInputs(false)
+        loginButton.isEnabled = false
         val emailAddress = loginEmailEditText.text.toString().trim()
         val password = loginPasswordEditText.text.toString().trim()
 
@@ -127,6 +128,7 @@ class LoginFragment : Fragment() {
 
             noNetworkSnackbar?.show()
             toggleLoginInputs(true)
+            loginButton.isEnabled = true
         } else {
             val loginResponse: LiveData<Response<UserLoginResponse>> = liveData {
                 try {
@@ -148,6 +150,7 @@ class LoginFragment : Fragment() {
                     connectionErrorSnackbar?.show()
                     loginProgressLayout.visibility = View.INVISIBLE
                     toggleLoginInputs(true)
+                    loginButton.isEnabled = true
                 }
             }
 
@@ -192,6 +195,7 @@ class LoginFragment : Fragment() {
 
                 loginProgressLayout.visibility = View.INVISIBLE
                 toggleLoginInputs(true)
+                loginButton.isEnabled = true
             }
         }
 

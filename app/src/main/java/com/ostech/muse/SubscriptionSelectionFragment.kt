@@ -39,7 +39,7 @@ class SubscriptionSelectionFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding =
             FragmentSubscriptionSelectionBinding.inflate(layoutInflater, container, false)
 

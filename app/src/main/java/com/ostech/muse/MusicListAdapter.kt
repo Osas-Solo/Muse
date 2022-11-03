@@ -17,12 +17,12 @@ class MusicHolder(
     private var musicCheckBox = binding.musicCheckBox
     private var musicPlayButton = binding.musicPlayImageButton
     var musicRemoveButton = binding.musicRemoveImageButton
-    private var musicTitleTextView = binding.musicTitleTextView
-    private var musicArtistTextView = binding.musicArtistTextView
-    private var musicAlbumTextView = binding.musicAlbumTextView
-    private var musicGenreTextView = binding.musicGenreTextView
-    private var musicTrackNumberTextView = binding.musicTrackNumberTextView
-    private var musicYearTextView = binding.musicYearTextView
+    var musicTitleTextView = binding.musicTitleTextView
+    var musicArtistTextView = binding.musicArtistTextView
+    var musicAlbumTextView = binding.musicAlbumTextView
+    var musicGenreTextView = binding.musicGenreTextView
+    var musicTrackNumberTextView = binding.musicTrackNumberTextView
+    var musicYearTextView = binding.musicYearTextView
 
     private val musicPlayer = MediaPlayer()
 
@@ -67,7 +67,7 @@ class MusicHolder(
     fun stopMusic() {
         musicPlayer.stop()
         musicPlayer.reset()
-        Log.i("Music Holder", "playMusic: Pausing music")
+        Log.i("Music Holder", "playMusic: Stopping music")
     }
 }
 

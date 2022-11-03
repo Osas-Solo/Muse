@@ -68,7 +68,7 @@ class SignupFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         _binding =
             FragmentSignupBinding.inflate(layoutInflater, container, false)
 
@@ -320,6 +320,7 @@ class SignupFragment : Fragment() {
 
     private fun signupUser() {
         toggleSignupInputs(false)
+        signupButton.isEnabled = false
 
         val firstName = signupFirstNameEditText.text.toString().trim()
         val lastName = signupLastNameEditText.text.toString().trim()
@@ -345,6 +346,7 @@ class SignupFragment : Fragment() {
 
             noNetworkSnackbar?.show()
             toggleSignupInputs(true)
+            signupButton.isEnabled = true
         } else {
             val signupResponse: LiveData<Response<UserSignupResponse>> = liveData {
                 try {
@@ -371,6 +373,7 @@ class SignupFragment : Fragment() {
                     connectionErrorSnackbar?.show()
                     signupProgressLayout.visibility = View.INVISIBLE
                     toggleSignupInputs(true)
+                    signupButton.isEnabled = true
                 }
             }
 
@@ -388,7 +391,6 @@ class SignupFragment : Fragment() {
                             .setPositiveButton("OK") { _, _ -> launchLoginActivity() }
                             .show()
                     }
-
                 } else {
                     val errorJSONString = it.errorBody()?.string()
                     Log.i(tag, "Signup response: $errorJSONString")
@@ -410,6 +412,7 @@ class SignupFragment : Fragment() {
 
                 signupProgressLayout.visibility = View.INVISIBLE
                 toggleSignupInputs(true)
+                signupButton.isEnabled = true
             }
         }
 
