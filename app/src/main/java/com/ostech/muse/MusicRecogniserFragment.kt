@@ -107,7 +107,9 @@ class MusicRecogniserFragment : Fragment() {
             }
 
             identifyMusicFilesButton.setOnClickListener {
+                musicRecogniserProgressLayout.visibility = View.VISIBLE
                 RecognitionThread().start()
+                musicRecogniserProgressLayout.visibility = View.GONE
             }
         }
     }
@@ -297,7 +299,7 @@ class MusicRecogniserFragment : Fragment() {
 
             val musicRecogniser = ACRCloudRecognizer(acrCloudConfiguration)
 
-            audioFiles.forEach{currentAudioFile ->
+            audioFiles.forEach { currentAudioFile ->
                 run {
                     val filePath = currentAudioFile.file.absolutePath
                     val file = File(filePath)
@@ -311,16 +313,17 @@ class MusicRecogniserFragment : Fragment() {
                     val result = musicRecogniser.recognizeByFile(filePath, 10)
                     Log.e("RecognitionThread", result)
                 }
+            }
         }
     }
 
     private val REQUEST_EXTERNAL_STORAGE = 1
     private val permissions = arrayOf<String>(
-        Manifest.permission.ACCESS_NETWORK_STATE,
-        Manifest.permission.ACCESS_WIFI_STATE,
-        Manifest.permission.INTERNET,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        Manifest.permission.READ_EXTERNAL_STORAGE
+        ACCESS_NETWORK_STATE,
+        ACCESS_WIFI_STATE,
+        INTERNET,
+        WRITE_EXTERNAL_STORAGE,
+        READ_EXTERNAL_STORAGE
     )
 
     fun verifyPermissions() {
