@@ -5,13 +5,11 @@ import android.Manifest.permission.ACCESS_WIFI_STATE
 import android.Manifest.permission.INTERNET
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-import android.R.attr.path
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.os.Message
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -302,12 +300,14 @@ class MusicRecogniserFragment : Fragment() {
             audioFiles.forEach { currentAudioFile ->
                 val filePath = currentAudioFile.file.path
                 val file = File(filePath)
+/*
                 if (file.canRead()) {
                     Log.e("RecognitionThread", "can read")
                 } else {
                     Log.e("RecognitionThread", "can not read")
                     return
                 }
+*/
 
                 val result = musicRecogniser.recognizeByFile(currentAudioFile.file.path, 10)
                 Log.e("RecognitionThread", "Recognition Result: $result")

@@ -7,6 +7,8 @@ android {
     namespace 'com.ostech.muse'
     compileSdk 33
 
+    sourceSets.main.jniLibs.srcDirs = ["jni"]
+
     defaultConfig {
         applicationId "com.ostech.muse"
         minSdk 21
@@ -41,7 +43,7 @@ android {
 
 dependencies {
 
-
+    implementation fileTree(include: ['*.jar'], dir: 'jni')
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.6.1'
