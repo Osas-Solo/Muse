@@ -1,8 +1,17 @@
 package com.ostech.muse
 
+import android.Manifest.permission.ACCESS_NETWORK_STATE
+import android.Manifest.permission.ACCESS_WIFI_STATE
+import android.Manifest.permission.INTERNET
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.R.attr.path
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.os.Message
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +20,7 @@ import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
@@ -27,6 +37,8 @@ import com.ostech.muse.models.api.response.ErrorResponse
 import com.ostech.muse.models.api.response.User
 import com.ostech.muse.models.api.response.UserProfileResponse
 import com.ostech.muse.music.Music
+import com.ostech.muse.musicRecogniser.ACRCloudExtractionTool
+import com.ostech.muse.musicRecogniser.ACRCloudRecognizer
 import com.ostech.muse.session.SessionManager
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -54,6 +66,8 @@ class MusicRecogniserFragment : Fragment() {
 
     private var audioFilesURIs = listOf<Uri>()
     private var audioFiles = mutableListOf<Music>()
+
+    private var museStoragePath = Environment.getExternalStorageDirectory().absolutePath + "/Muse"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -90,6 +104,10 @@ class MusicRecogniserFragment : Fragment() {
 
             clearMusicFilesButton.setOnClickListener {
                 clearSelectedMusicFiles()
+            }
+
+            identifyMusicFilesButton.setOnClickListener {
+                RecognitionThread().start()
             }
         }
     }
@@ -251,6 +269,73 @@ class MusicRecogniserFragment : Fragment() {
         identifyMusicFilesButton.isEnabled = false
         clearMusicFilesButton.isEnabled = false
         confirmRecognitionFloatingActionButton.isEnabled = false
+    }
+
+    private fun recogniseMusicFiles() {
+        verifyPermissions()
+
+        ACRCloudExtractionTool.setDebug()
+
+        Log.e(tag, museStoragePath)
+
+        val museStoragePathCreationFile: File = File(museStoragePath)
+        if (!museStoragePathCreationFile.exists()) {
+            museStoragePathCreationFile.mkdirs()
+        }
+
+
+    }
+
+    inner class RecognitionThread : Thread() {
+        override fun run() {
+            val acrCloudConfiguration: MutableMap<String, Any> = HashMap()
+
+            acrCloudConfiguration["host"] = BuildConfig.ACR_CLOUD_HOST
+            acrCloudConfiguration["access_key"] = BuildConfig.ACR_CLOUD_ACCESS_KEY
+            acrCloudConfiguration["access_secret"] = BuildConfig.ACR_CLOUD_SECRET_KEY
+            acrCloudConfiguration["timeout"] = 10
+
+            val musicRecogniser = ACRCloudRecognizer(acrCloudConfiguration)
+
+            audioFiles.forEach{currentAudioFile ->
+                run {
+                    val filePath = currentAudioFile.file.absolutePath
+                    val file = File(filePath)
+                    if (file.canRead()) {
+                        Log.e("RecognitionThread", "can read")
+                    } else {
+                        Log.e("RecognitionThread", "can not read")
+                        return
+                    }
+
+                    val result = musicRecogniser.recognizeByFile(filePath, 10)
+                    Log.e("RecognitionThread", result)
+                }
+        }
+    }
+
+    private val REQUEST_EXTERNAL_STORAGE = 1
+    private val permissions = arrayOf<String>(
+        Manifest.permission.ACCESS_NETWORK_STATE,
+        Manifest.permission.ACCESS_WIFI_STATE,
+        Manifest.permission.INTERNET,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    )
+
+    fun verifyPermissions() {
+        for (i in permissions.indices) {
+            val permission = context?.let { ActivityCompat.checkSelfPermission(it, permissions[i]) }
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                activity?.let {
+                    ActivityCompat.requestPermissions(
+                        it, permissions,
+                        REQUEST_EXTERNAL_STORAGE
+                    )
+                }
+                break
+            }
+        }
     }
 
     override fun onDestroyView() {
