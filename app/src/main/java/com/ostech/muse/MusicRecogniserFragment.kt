@@ -300,19 +300,17 @@ class MusicRecogniserFragment : Fragment() {
             val musicRecogniser = ACRCloudRecognizer(acrCloudConfiguration)
 
             audioFiles.forEach { currentAudioFile ->
-                run {
-                    val filePath = currentAudioFile.file.absolutePath
-                    val file = File(filePath)
-                    if (file.canRead()) {
-                        Log.e("RecognitionThread", "can read")
-                    } else {
-                        Log.e("RecognitionThread", "can not read")
-                        return
-                    }
-
-                    val result = musicRecogniser.recognizeByFile(filePath, 10)
-                    Log.e("RecognitionThread", result)
+                val filePath = currentAudioFile.file.path
+                val file = File(filePath)
+                if (file.canRead()) {
+                    Log.e("RecognitionThread", "can read")
+                } else {
+                    Log.e("RecognitionThread", "can not read")
+                    return
                 }
+
+                val result = musicRecogniser.recognizeByFile(currentAudioFile.file.path, 10)
+                Log.e("RecognitionThread", "Recognition Result: $result")
             }
         }
     }
