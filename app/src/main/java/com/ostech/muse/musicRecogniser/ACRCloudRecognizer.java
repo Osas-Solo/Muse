@@ -63,7 +63,7 @@ public class ACRCloudRecognizer {
         if (config.get("debug") != null) {
             this.debug = ((Boolean)config.get("debug")).booleanValue();
             if (this.debug) {
-                ACRCloudExtractionTool.setDebug();
+                ACRCloudExtrTool.setDebug();
             }
         }
     }
@@ -80,7 +80,7 @@ public class ACRCloudRecognizer {
      **/
     public String recognize(byte[] wavAudioBuffer, int wavAudioBufferLen)
     {
-        byte[] fp = ACRCloudExtractionTool.createFingerprint(wavAudioBuffer, wavAudioBufferLen, false);
+        byte[] fp = ACRCloudExtrTool.createFingerprint(wavAudioBuffer, wavAudioBufferLen, false);
         if (fp == null) {
             return ACRCloudStatusCode.DECODE_AUDIO_ERROR;
         }
@@ -104,7 +104,7 @@ public class ACRCloudRecognizer {
      **/
     public String recognizeByFileBuffer(byte[] fileBuffer, int fileBufferLen, int startSeconds)
     {
-        byte[] fp = ACRCloudExtractionTool.createFingerprintByFileBuffer(fileBuffer, fileBufferLen, startSeconds, 12, false);
+        byte[] fp = ACRCloudExtrTool.createFingerprintByFileBuffer(fileBuffer, fileBufferLen, startSeconds, 12, false);
         if (fp == null) {
             return ACRCloudStatusCode.DECODE_AUDIO_ERROR;
         }
@@ -127,7 +127,7 @@ public class ACRCloudRecognizer {
      **/
     public String recognizeByFile(String filePath, int startSeconds)
     {
-        byte[] fp = ACRCloudExtractionTool.createFingerprintByFile(filePath, startSeconds, 12, false);
+        byte[] fp = ACRCloudExtrTool.createFingerprintByFile(filePath, startSeconds, 12, false);
 
         if (fp == null) {
             return ACRCloudStatusCode.DECODE_AUDIO_ERROR;

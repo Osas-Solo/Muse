@@ -48,7 +48,7 @@ ACRCloudExtrTool Copyright 2015 ACRCloud v1.0.0
          set debug, and print all info.
 
 */
-public class ACRCloudExtractionTool {
+public class ACRCloudExtrTool {
 
     static {
         try {
@@ -59,7 +59,7 @@ public class ACRCloudExtractionTool {
         }
     }
 
-    public ACRCloudExtractionTool() {
+    public ACRCloudExtrTool() {
     }
 
     public static byte[] createFingerprintByFile(String fileName, int startTimeSeconds, int audioLenSeconds, boolean isDB) {

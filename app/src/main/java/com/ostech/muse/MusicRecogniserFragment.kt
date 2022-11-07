@@ -35,7 +35,7 @@ import com.ostech.muse.models.api.response.ErrorResponse
 import com.ostech.muse.models.api.response.User
 import com.ostech.muse.models.api.response.UserProfileResponse
 import com.ostech.muse.music.Music
-import com.ostech.muse.musicRecogniser.ACRCloudExtractionTool
+import com.ostech.muse.musicRecogniser.ACRCloudExtrTool
 import com.ostech.muse.musicRecogniser.ACRCloudRecognizer
 import com.ostech.muse.session.SessionManager
 import kotlinx.coroutines.launch
@@ -274,7 +274,7 @@ class MusicRecogniserFragment : Fragment() {
     private fun recogniseMusicFiles() {
         verifyPermissions()
 
-        ACRCloudExtractionTool.setDebug()
+        ACRCloudExtrTool.setDebug()
 
         Log.e(tag, museStoragePath)
 
