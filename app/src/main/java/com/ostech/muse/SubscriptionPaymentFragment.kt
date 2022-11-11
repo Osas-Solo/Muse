@@ -196,6 +196,16 @@ class SubscriptionPaymentFragment : Fragment() {
                 val errorJSON =
                     Gson().fromJson(errorJSONString, ErrorResponse::class.java)
                 val errorMessage = errorJSON.error
+
+                val subscriptionPaymentErrorSnackbar = view?.let {
+                    Snackbar.make(
+                        it,
+                        errorMessage,
+                        Snackbar.LENGTH_LONG
+                    )
+                }
+
+                subscriptionPaymentErrorSnackbar?.show()
             }
         }
     }

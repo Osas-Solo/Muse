@@ -84,6 +84,8 @@ class MusicRecogniserFragment : Fragment() {
 
         musicFilesRecyclerView.layoutManager = LinearLayoutManager(context)
 
+        verifyPermissions()
+
         return binding.root
     }
 
@@ -272,8 +274,6 @@ class MusicRecogniserFragment : Fragment() {
     }
 
     private fun recogniseMusicFiles() {
-        verifyPermissions()
-
         ACRCloudExtrTool.setDebug()
 
         Log.e(tag, museStoragePath)
@@ -300,14 +300,12 @@ class MusicRecogniserFragment : Fragment() {
             audioFiles.forEach { currentAudioFile ->
                 val filePath = currentAudioFile.file.path
                 val file = File(filePath)
-/*
                 if (file.canRead()) {
                     Log.e("RecognitionThread", "can read")
                 } else {
                     Log.e("RecognitionThread", "can not read")
                     return
                 }
-*/
 
                 val result = musicRecogniser.recognizeByFile(currentAudioFile.file.path, 10)
                 Log.e("RecognitionThread", "Recognition Result: $result")
