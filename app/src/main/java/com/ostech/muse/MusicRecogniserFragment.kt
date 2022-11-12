@@ -108,7 +108,7 @@ class MusicRecogniserFragment : Fragment() {
 
             identifyMusicFilesButton.setOnClickListener {
                 musicRecogniserProgressLayout.visibility = View.VISIBLE
-                RecognitionThread().start()
+                recogniseMusicFiles()
                 musicRecogniserProgressLayout.visibility = View.GONE
             }
         }
@@ -283,17 +283,17 @@ class MusicRecogniserFragment : Fragment() {
         confirmRecognitionFloatingActionButton.isEnabled = false
     }
 
-    private fun recogniseMusicFiles() {
+    fun recogniseMusicFiles() {
         ACRCloudExtrTool.setDebug()
 
         Log.e(tag, museStoragePath)
 
-        val museStoragePathCreationFile: File = File(museStoragePath)
+        val museStoragePathCreationFile = File(museStoragePath)
         if (!museStoragePathCreationFile.exists()) {
             museStoragePathCreationFile.mkdirs()
         }
 
-
+        RecognitionThread().start()
     }
 
     inner class RecognitionThread : Thread() {
@@ -314,7 +314,6 @@ class MusicRecogniserFragment : Fragment() {
                     Log.e("RecognitionThread", "can read")
                 } else {
                     Log.e("RecognitionThread", "can not read")
-                    return
                 }
 
                 val result = musicRecogniser.recognizeByFile(currentAudioFile.file.path, 10)
@@ -323,14 +322,16 @@ class MusicRecogniserFragment : Fragment() {
         }
     }
 
-    private val REQUEST_EXTERNAL_STORAGE = 1
-    private val permissions = arrayOf<String>(
-        ACCESS_NETWORK_STATE,
-        ACCESS_WIFI_STATE,
-        INTERNET,
-        WRITE_EXTERNAL_STORAGE,
-        READ_EXTERNAL_STORAGE
-    )
+    companion object {
+        private const val REQUEST_EXTERNAL_STORAGE = 1
+        private val permissions = arrayOf(
+            ACCESS_NETWORK_STATE,
+            ACCESS_WIFI_STATE,
+            INTERNET,
+            WRITE_EXTERNAL_STORAGE,
+            READ_EXTERNAL_STORAGE
+        )
+    }
 
     fun verifyPermissions() {
         for (i in permissions.indices) {
