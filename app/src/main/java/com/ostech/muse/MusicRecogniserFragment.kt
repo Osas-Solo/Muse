@@ -325,9 +325,8 @@ class MusicRecogniserFragment : Fragment() {
                     try {
                         val requestFile: RequestBody = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
 
-                        val body: MultipartBody.Part = MultipartBody.Part.createFormData("file", file.name, requestFile)
-                        val response = MuseAPIBuilder.museAPIService.recogniseSong(body)
-                        response.let { emit(it) }
+                        val response = MuseAPIBuilder.museAPIService.recogniseSong(requestFile)
+                        emit(response)
                     } catch (connectionException: IOException) {
                         Log.i(tag, "$connectionException")
                         val connectionErrorSnackbar = view?.let {
