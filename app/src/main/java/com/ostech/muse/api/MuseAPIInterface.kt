@@ -1,5 +1,6 @@
 package com.ostech.muse.api
 
+import com.ostech.muse.models.api.response.RecognitionResponse
 import com.ostech.muse.models.api.response.SubscriptionTypeListResponse
 import com.ostech.muse.models.api.response.SubscriptionTypeResponse
 import com.ostech.muse.models.api.response.UserLoginResponse
@@ -7,11 +8,14 @@ import com.ostech.muse.models.api.response.UserProfileResponse
 import com.ostech.muse.models.api.response.UserSignupResponse
 import com.ostech.muse.models.api.response.UserSubscriptionListResponse
 import com.ostech.muse.models.api.response.UserSubscriptionResponse
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface MuseAPIInterface {
@@ -69,4 +73,9 @@ interface MuseAPIInterface {
         @Field("amountPaid") amountPaid: Double,
     ): Response<UserSubscriptionResponse>
 
+    @Multipart
+    @POST("recogniser/recognise")
+    suspend fun recogniseSong (
+        @Part file: MultipartBody.Part,
+    ): Response<RecognitionResponse>
 }

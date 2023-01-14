@@ -32,16 +32,20 @@ import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentMusicRecogniserBinding
 import com.ostech.muse.models.api.response.ErrorResponse
+import com.ostech.muse.models.api.response.RecognitionResponse
 import com.ostech.muse.models.api.response.User
 import com.ostech.muse.models.api.response.UserProfileResponse
 import com.ostech.muse.music.Music
-import com.ostech.muse.musicRecogniser.ACRCloudExtrTool
-import com.ostech.muse.musicRecogniser.ACRCloudRecognizer
 import com.ostech.muse.session.SessionManager
 import kotlinx.coroutines.launch
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import java.io.File
 import java.io.IOException
+
 
 class MusicRecogniserFragment : Fragment() {
     private var _binding: FragmentMusicRecogniserBinding? = null
@@ -132,6 +136,7 @@ class MusicRecogniserFragment : Fragment() {
             }
 
             noNetworkSnackbar?.show()
+            selectMusicFilesButton.isEnabled = true
         } else {
             val profileResponse: LiveData<Response<UserProfileResponse>> = liveData {
                 try {
@@ -148,6 +153,7 @@ class MusicRecogniserFragment : Fragment() {
                     }
 
                     connectionErrorSnackbar?.show()
+                    selectMusicFilesButton.isEnabled = true
                 }
             }
 
@@ -283,42 +289,70 @@ class MusicRecogniserFragment : Fragment() {
         confirmRecognitionFloatingActionButton.isEnabled = false
     }
 
-    fun recogniseMusicFiles() {
-        ACRCloudExtrTool.setDebug()
-
+    private fun recogniseMusicFiles() {
         Log.e(tag, museStoragePath)
 
         val museStoragePathCreationFile = File(museStoragePath)
         if (!museStoragePathCreationFile.exists()) {
             museStoragePathCreationFile.mkdirs()
+            Log.e(tag, "Muse storage path created")
         }
 
-        RecognitionThread().start()
-    }
+        audioFiles.forEach { currentAudioFile ->
+            val filePath = currentAudioFile.file.path
+            val file = File(filePath)
+            if (file.canRead()) {
+                Log.e(tag, "can read {$filePath}")
+            } else {
+                Log.e(tag, "can not read {$filePath}")
+            }
 
-    inner class RecognitionThread : Thread() {
-        override fun run() {
-            val acrCloudConfiguration: MutableMap<String, Any> = HashMap()
-
-            acrCloudConfiguration["host"] = BuildConfig.ACR_CLOUD_HOST
-            acrCloudConfiguration["access_key"] = BuildConfig.ACR_CLOUD_ACCESS_KEY
-            acrCloudConfiguration["access_secret"] = BuildConfig.ACR_CLOUD_SECRET_KEY
-            acrCloudConfiguration["timeout"] = 10
-
-            val musicRecogniser = ACRCloudRecognizer(acrCloudConfiguration)
-
-            audioFiles.forEach { currentAudioFile ->
-                val filePath = currentAudioFile.file.path
-                val file = File(filePath)
-                if (file.canRead()) {
-                    Log.e("RecognitionThread", "can read")
-                } else {
-                    Log.e("RecognitionThread", "can not read")
+            if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
+                val noNetworkSnackbar = view?.let {
+                    Snackbar.make(
+                        it,
+                        getString(
+                            R.string.no_internet_connection_message,
+                            "recognise music files"
+                        ),
+                        Snackbar.LENGTH_LONG
+                    )
                 }
 
-                val result = musicRecogniser.recognizeByFile(currentAudioFile.file.path, 10)
-                Log.e("RecognitionThread", "Recognition Result: $result")
+                noNetworkSnackbar?.show()
+            } else {
+                val recognitionResponse: LiveData<Response<RecognitionResponse>> = liveData {
+                    try {
+                        val requestFile: RequestBody = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+
+                        val body: MultipartBody.Part = MultipartBody.Part.createFormData("file", file.name, requestFile)
+                        val response = MuseAPIBuilder.museAPIService.recogniseSong(body)
+                        response.let { emit(it) }
+                    } catch (connectionException: IOException) {
+                        Log.i(tag, "$connectionException")
+                        val connectionErrorSnackbar = view?.let {
+                            Snackbar.make(
+                                it,
+                                getText(R.string.poor_internet_connection_message),
+                                Snackbar.LENGTH_LONG
+                            )
+                        }
+
+                        connectionErrorSnackbar?.show()
+                    }
+                }
+
+                recognitionResponse.observe(viewLifecycleOwner) { it ->
+                    if (it.isSuccessful) {
+                        val successJSON = it.body()
+                        Log.i(tag, "Recognition response: $successJSON")
+                    } else {
+                        val errorJSONString = it.errorBody()?.string()
+                        Log.i(tag, "Recognition response: $errorJSONString")
+                    }
+                }
             }
+
         }
     }
 

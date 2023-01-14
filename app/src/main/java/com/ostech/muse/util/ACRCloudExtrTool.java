@@ -1,5 +1,3 @@
-package com.ostech.muse.musicRecogniser;
-
 /**
  *
  *  @author qinxue.pan E-mail: xue@acrcloud.com
@@ -8,6 +6,7 @@ package com.ostech.muse.musicRecogniser;
  *
  **/
 
+package com.ostech.muse.util;
 
 /*
 

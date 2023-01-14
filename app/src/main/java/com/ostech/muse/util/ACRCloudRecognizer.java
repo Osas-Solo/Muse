@@ -1,25 +1,22 @@
-package com.ostech.muse.musicRecogniser;
-
 /**
  *
  *  @author qinxue.pan E-mail: xue@acrcloud.com
  *  @version 1.0.0
  *  @create 2015.10.01
- *
+ *  
  **/
 
 /*
 Copyright 2015 ACRCloud Recognizer v1.0.0
 
-This module can recognize ACRCloud by most of audio/video file.
+This module can recognize ACRCloud by most of audio/video file. 
         Audio: mp3, wav, m4a, flac, aac, amr, ape, ogg ...
         Video: mp4, mkv, wmv, flv, ts, avi ...
 */
 
-import android.util.Base64;
-import android.util.Log;
+package com.ostech.muse.util;
 
-import com.ostech.muse.BuildConfig;
+import android.util.Base64;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,14 +31,16 @@ import java.net.URL;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import android.util.Log;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 public class ACRCloudRecognizer {
-    private String host = BuildConfig.ACR_CLOUD_HOST;
-    private String accessKey = BuildConfig.ACR_CLOUD_ACCESS_KEY;
-    private String accessSecret = BuildConfig.ACR_CLOUD_ACCESS_KEY;
+
+    private String host = "ap-southeast-1.api.acrcloud.com";
+    private String accessKey = "";
+    private String accessSecret = "";
     private int timeout = 5 * 1000; // ms
     private boolean debug = false;
 
@@ -69,15 +68,15 @@ public class ACRCloudRecognizer {
     }
 
     /**
-     *
-     *  recognize by wav audio buffer(RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz)
-     *
-     *  @param wavAudioBuffer query audio buffer
-     *  @param wavAudioBufferLen the length of wavAudioBuffer
-     *
-     *  @return result
-     *
-     **/
+      *
+      *  recognize by wav audio buffer(RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz) 
+      *
+      *  @param wavAudioBuffer query audio buffer
+      *  @param wavAudioBufferLen the length of wavAudioBuffer
+      *  
+      *  @return result 
+      *
+      **/
     public String recognize(byte[] wavAudioBuffer, int wavAudioBufferLen)
     {
         byte[] fp = ACRCloudExtrTool.createFingerprint(wavAudioBuffer, wavAudioBufferLen, false);
@@ -91,17 +90,17 @@ public class ACRCloudRecognizer {
     }
 
     /**
-     *
-     *  recognize by buffer of (Audio/Video file)
-     *          Audio: mp3, mp4, wav, m4a, aac, amr, ape, flv, flac, ogg, wma, caf, alac
-     *
-     *  @param fileBuffer query buffer
-     *  @param fileBufferLen the length of fileBufferLen
-     *  @param startSeconds skip (startSeconds) seconds from from the beginning of fileBuffer
-     *
-     *  @return result
-     *
-     **/
+      *
+      *  recognize by buffer of (Audio/Video file)
+      *          Audio: mp3, mp4, wav, m4a, aac, amr, ape, flv, flac, ogg, wma, caf, alac
+      *
+      *  @param fileBuffer query buffer
+      *  @param fileBufferLen the length of fileBufferLen 
+      *  @param startSeconds skip (startSeconds) seconds from from the beginning of fileBuffer
+      *  
+      *  @return result 
+      *
+      **/
     public String recognizeByFileBuffer(byte[] fileBuffer, int fileBufferLen, int startSeconds)
     {
         byte[] fp = ACRCloudExtrTool.createFingerprintByFileBuffer(fileBuffer, fileBufferLen, startSeconds, 12, false);
@@ -115,16 +114,16 @@ public class ACRCloudRecognizer {
     }
 
     /**
-     *
-     *  recognize by file path of (Audio/Video file)
-     *          Audio: mp3, mp4, wav, m4a, aac, amr, ape, flv, flac, ogg, wma, caf, alac
-     *
-     *  @param filePath query file path
-     *  @param startSeconds skip (startSeconds) seconds from from the beginning of (filePath)
-     *
-     *  @return result
-     *
-     **/
+      *
+      *  recognize by file path of (Audio/Video file)
+      *          Audio: mp3, mp4, wav, m4a, aac, amr, ape, flv, flac, ogg, wma, caf, alac
+      *
+      *  @param filePath query file path
+      *  @param startSeconds skip (startSeconds) seconds from from the beginning of (filePath)
+      *  
+      *  @return result 
+      *
+      **/
     public String recognizeByFile(String filePath, int startSeconds)
     {
         byte[] fp = ACRCloudExtrTool.createFingerprintByFile(filePath, startSeconds, 12, false);
@@ -139,7 +138,7 @@ public class ACRCloudRecognizer {
         Log.e(TAG, ""+fp.length);
         return this.doRecogize(fp);
     }
-
+ 
     private String doRecogize(byte[] fp) {
 
         System.out.println(""+fp.length);
@@ -167,7 +166,7 @@ public class ACRCloudRecognizer {
         String res = postHttp(reqURL, postParams, this.timeout);
 
         try {
-            JSONObject jsonResponse = new JSONObject(res);
+            JSONObject json_res = new JSONObject(res);
         } catch (JSONException e) {
             Log.e(TAG, "json error: " + res);
             res = ACRCloudStatusCode.JSON_ERROR;
@@ -192,14 +191,14 @@ public class ACRCloudRecognizer {
         }
         return "";
     }
-
-    private String getUTCTimeSeconds() {
-        Calendar cal = Calendar.getInstance();
-        int zoneOffset = cal.get(Calendar.ZONE_OFFSET);
-        int dstOffset = cal.get(Calendar.DST_OFFSET);
-        cal.add(Calendar.MILLISECOND, -(zoneOffset + dstOffset));
+    
+    private String getUTCTimeSeconds() {  
+        Calendar cal = Calendar.getInstance();   
+        int zoneOffset = cal.get(Calendar.ZONE_OFFSET);   
+        int dstOffset = cal.get(Calendar.DST_OFFSET);    
+        cal.add(Calendar.MILLISECOND, -(zoneOffset + dstOffset));    
         return cal.getTimeInMillis()/1000 + "";
-    }
+    }  
 
     private String postHttp(String posturl, Map<String, Object> params, int timeOut) {
         String res = "";
@@ -207,7 +206,7 @@ public class ACRCloudRecognizer {
         String BOUNDARY = "--" + BOUNDARYSTR + "\r\n";
         String ENDBOUNDARY = "--" + BOUNDARYSTR + "--\r\n\r\n";
         String stringKeyHeader = BOUNDARY + "Content-Disposition:form-data;name=\"%s\"" + "\r\n\r\n%s\r\n";
-        String filePartHeader = BOUNDARY + "Content-Disposition: form-data;name=\"%s\";filename=\"%s\"\r\n" + "Content-Type:application/octet-stream\r\n\r\n";
+        String filePartHeader = BOUNDARY + "Content-Disposition: form-data;name=\"%s\";filename=\"%s\"\r\n" + "Content-Type:application/octet-stream\r\n\r\n";		
         URL url = null;
         HttpURLConnection conn = null;
         BufferedOutputStream out = null;
@@ -225,7 +224,7 @@ public class ACRCloudRecognizer {
                 }
             }
             postBufferStream.write(ENDBOUNDARY.getBytes());
-
+            
             url = new URL(posturl);
             conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(timeOut);

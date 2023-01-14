@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object MuseAPIBuilder {
     private val client = OkHttpClient.Builder().build()
-    private const val MUSE_API_URL = "https://muse-api-osas-solo.herokuapp.com/"
+    private const val MUSE_API_URL = "https://muse-osas-solo.onrender.com/"
 
     val museAPIService = Retrofit.Builder()
         .baseUrl(MUSE_API_URL)
