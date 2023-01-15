@@ -4,11 +4,11 @@ import com.google.gson.annotations.SerializedName
 
 data class RecognitionResponse(
     @SerializedName("status")
-    val status: String,
+    val status: Any,
     @SerializedName("result_type")
-    val result_type: String?,
+    val resultType: Any?,
     @SerializedName("metadata")
-    val metadata: String?,
+    val metadata: MusicMetadata?,
     @SerializedName("cost_time")
-    val cost_time: String?,
+    val costTime: Any?,
 )

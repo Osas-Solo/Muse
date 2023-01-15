@@ -38,10 +38,10 @@ import com.ostech.muse.models.api.response.UserProfileResponse
 import com.ostech.muse.music.Music
 import com.ostech.muse.session.SessionManager
 import kotlinx.coroutines.launch
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Response
 import java.io.File
 import java.io.IOException
@@ -69,7 +69,7 @@ class MusicRecogniserFragment : Fragment() {
     private var audioFilesURIs = listOf<Uri>()
     private var audioFiles = mutableListOf<Music>()
 
-    private var museStoragePath = Environment.getExternalStorageDirectory().absolutePath + "/Muse"
+    private var museStoragePath = Environment.getExternalStorageDirectory().absolutePath + "/Music/Muse"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -112,8 +112,10 @@ class MusicRecogniserFragment : Fragment() {
 
             identifyMusicFilesButton.setOnClickListener {
                 musicRecogniserProgressLayout.visibility = View.VISIBLE
+                selectMusicFilesButton.isEnabled = false
+                identifyMusicFilesButton.isEnabled = false
+                clearMusicFilesButton.isEnabled = false
                 recogniseMusicFiles()
-                musicRecogniserProgressLayout.visibility = View.GONE
             }
         }
     }
@@ -239,7 +241,6 @@ class MusicRecogniserFragment : Fragment() {
                             null,
                             null,
                             null,
-                            null,
                         )
                     )
                 }
@@ -299,12 +300,13 @@ class MusicRecogniserFragment : Fragment() {
         }
 
         audioFiles.forEach { currentAudioFile ->
-            val filePath = currentAudioFile.file.path
-            val file = File(filePath)
+            var filePath = currentAudioFile.file.path
+            filePath = "/" + filePath.substring(filePath.lastIndexOf(":") + 1)
+            val file = File(Environment.getExternalStorageDirectory().absolutePath + filePath)
             if (file.canRead()) {
-                Log.e(tag, "can read {$filePath}")
+                Log.e(tag, "can read $filePath")
             } else {
-                Log.e(tag, "can not read {$filePath}")
+                Log.e(tag, "can not read $filePath")
             }
 
             if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
@@ -323,9 +325,11 @@ class MusicRecogniserFragment : Fragment() {
             } else {
                 val recognitionResponse: LiveData<Response<RecognitionResponse>> = liveData {
                     try {
-                        val requestFile: RequestBody = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+                        val requestFile: RequestBody = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+                        val body: MultipartBody.Part =
+                            MultipartBody.Part.createFormData("file", file.name, requestFile)
 
-                        val response = MuseAPIBuilder.museAPIService.recogniseSong(requestFile)
+                        val response = MuseAPIBuilder.museAPIService.recogniseSong(body)
                         emit(response)
                     } catch (connectionException: IOException) {
                         Log.i(tag, "$connectionException")
@@ -342,17 +346,20 @@ class MusicRecogniserFragment : Fragment() {
                 }
 
                 recognitionResponse.observe(viewLifecycleOwner) { it ->
-                    if (it.isSuccessful) {
-                        val successJSON = it.body()
-                        Log.i(tag, "Recognition response: $successJSON")
-                    } else {
-                        val errorJSONString = it.errorBody()?.string()
-                        Log.i(tag, "Recognition response: $errorJSONString")
+                    it?.let {
+                        if (it.isSuccessful) {
+                            val successJSON = it.body()
+                            Log.i(tag, "Recognition response: $filePath: $successJSON")
+                        } else {
+                            val errorJSONString = it.errorBody()?.string()
+                            Log.i(tag, "Recognition response: $errorJSONString")
+                        }
                     }
                 }
             }
-
         }
+
+        musicRecogniserProgressLayout.visibility = View.GONE
     }
 
     companion object {

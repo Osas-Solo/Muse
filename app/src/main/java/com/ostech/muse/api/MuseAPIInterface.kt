@@ -77,6 +77,6 @@ interface MuseAPIInterface {
     @Multipart
     @POST("recogniser/recognise")
     suspend fun recogniseSong (
-        @Part("file") musicFile: RequestBody
+        @Part musicFile: MultipartBody.Part
     ): Response<RecognitionResponse>
 }
