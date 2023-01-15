@@ -18,6 +18,7 @@ import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
@@ -31,7 +32,9 @@ import com.google.gson.Gson
 import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentMusicRecogniserBinding
+import com.ostech.muse.models.api.response.Artist
 import com.ostech.muse.models.api.response.ErrorResponse
+import com.ostech.muse.models.api.response.Genre
 import com.ostech.muse.models.api.response.RecognitionResponse
 import com.ostech.muse.models.api.response.User
 import com.ostech.muse.models.api.response.UserProfileResponse
@@ -45,6 +48,8 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Response
 import java.io.File
 import java.io.IOException
+import java.time.LocalDate
+import java.time.ZoneId
 
 
 class MusicRecogniserFragment : Fragment() {
@@ -60,6 +65,7 @@ class MusicRecogniserFragment : Fragment() {
     private lateinit var clearMusicFilesButton: AppCompatButton
     private lateinit var musicRecogniserProgressLayout: LinearLayout
     private lateinit var musicFilesRecyclerView: RecyclerView
+    private lateinit var musicRecogniserProgressTextView: AppCompatTextView
 
     private var numberOfSongsLeftToRecognise: Int = 0
     private var numberOfSelectedSongs: Int = 0
@@ -69,7 +75,8 @@ class MusicRecogniserFragment : Fragment() {
     private var audioFilesURIs = listOf<Uri>()
     private var audioFiles = mutableListOf<Music>()
 
-    private var museStoragePath = Environment.getExternalStorageDirectory().absolutePath + "/Music/Muse"
+    private var museStoragePath =
+        Environment.getExternalStorageDirectory().absolutePath + "/Music/Muse"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -85,6 +92,7 @@ class MusicRecogniserFragment : Fragment() {
         clearMusicFilesButton = binding.clearMusicFilesButton
         musicRecogniserProgressLayout = binding.musicRecogniserProgressLayout
         musicFilesRecyclerView = binding.musicFilesRecyclerView
+        musicRecogniserProgressTextView = binding.musicRecogniserProgressTextView
 
         musicFilesRecyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -111,11 +119,11 @@ class MusicRecogniserFragment : Fragment() {
             }
 
             identifyMusicFilesButton.setOnClickListener {
-                musicRecogniserProgressLayout.visibility = View.VISIBLE
-                selectMusicFilesButton.isEnabled = false
-                identifyMusicFilesButton.isEnabled = false
-                clearMusicFilesButton.isEnabled = false
                 recogniseMusicFiles()
+            }
+
+            confirmRecognitionFloatingActionButton.setOnClickListener {
+                confirmMusicRecognition()
             }
         }
     }
@@ -285,12 +293,21 @@ class MusicRecogniserFragment : Fragment() {
             audioFiles
         )
 
+        selectMusicFilesButton.isEnabled = true
         identifyMusicFilesButton.isEnabled = false
         clearMusicFilesButton.isEnabled = false
         confirmRecognitionFloatingActionButton.isEnabled = false
     }
 
     private fun recogniseMusicFiles() {
+        musicRecogniserProgressTextView.text = getText(R.string.music_recogniser_progress_text)
+        musicRecogniserProgressLayout.visibility = View.VISIBLE
+        selectMusicFilesButton.isEnabled = false
+        identifyMusicFilesButton.isEnabled = false
+        clearMusicFilesButton.isEnabled = false
+
+        toggleMusicHolderWidgets(false)
+
         Log.e(tag, museStoragePath)
 
         val museStoragePathCreationFile = File(museStoragePath)
@@ -298,6 +315,8 @@ class MusicRecogniserFragment : Fragment() {
             museStoragePathCreationFile.mkdirs()
             Log.e(tag, "Muse storage path created")
         }
+
+        var recognitionCounter = 0
 
         audioFiles.forEach { currentAudioFile ->
             var filePath = currentAudioFile.file.path
@@ -325,7 +344,8 @@ class MusicRecogniserFragment : Fragment() {
             } else {
                 val recognitionResponse: LiveData<Response<RecognitionResponse>> = liveData {
                     try {
-                        val requestFile: RequestBody = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+                        val requestFile: RequestBody =
+                            file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
                         val body: MultipartBody.Part =
                             MultipartBody.Part.createFormData("file", file.name, requestFile)
 
@@ -350,16 +370,89 @@ class MusicRecogniserFragment : Fragment() {
                         if (it.isSuccessful) {
                             val successJSON = it.body()
                             Log.i(tag, "Recognition response: $filePath: $successJSON")
+
+                            val musicHolder =
+                                musicFilesRecyclerView.findViewHolderForAdapterPosition(
+                                    audioFiles.indexOf(currentAudioFile)
+                                )
+                                        as MusicHolder
+
+                            successJSON?.metadata?.let { metadata ->
+                                val artists: List<Artist>? = metadata.music[0].artists
+                                val genres: List<Genre>? = metadata.music[0].genres
+                                currentAudioFile.artists = mutableListOf()
+                                currentAudioFile.genres = mutableListOf()
+
+                                artists?.forEach() { artist ->
+                                    currentAudioFile.artists?.add(artist.name)
+                                }
+
+                                genres?.forEach() { genre ->
+                                    currentAudioFile.genres?.add(genre.name)
+                                }
+
+                                currentAudioFile.title = metadata.music[0].trackTitle
+                                currentAudioFile.album = metadata.music[0].albumName?.name
+                                val localDate: LocalDate? =
+                                    metadata.music[0].releaseDate?.toInstant()
+                                        ?.atZone(
+                                            ZoneId.systemDefault()
+                                        )?.toLocalDate()
+                                currentAudioFile.year = localDate?.year
+
+                                musicHolder.musicCheckBox.isChecked = true
+                                musicHolder.musicTitleTextView.text = currentAudioFile.title
+                                musicHolder.musicArtistTextView.text =
+                                    currentAudioFile.artists?.joinToString(", ")
+                                musicHolder.musicAlbumTextView.text = currentAudioFile.album
+                                musicHolder.musicGenreTextView.text =
+                                    currentAudioFile.genres?.joinToString(", ")
+                                musicHolder.musicYearTextView.text =
+                                    currentAudioFile.year.toString()
+                            }
+
+                            recognitionCounter++
+
+                            if (recognitionCounter == audioFiles.size) {
+                                musicRecogniserProgressLayout.visibility = View.GONE
+                                confirmRecognitionFloatingActionButton.isEnabled = true
+                                toggleMusicHolderWidgets(true)
+                            }
                         } else {
                             val errorJSONString = it.errorBody()?.string()
                             Log.i(tag, "Recognition response: $errorJSONString")
+
+                            recognitionCounter++
+
+                            if (recognitionCounter == audioFiles.size) {
+                                musicRecogniserProgressLayout.visibility = View.GONE
+                                confirmRecognitionFloatingActionButton.isEnabled = true
+                                toggleMusicHolderWidgets(true)
+                            }
                         }
                     }
                 }
             }
         }
+    }
 
-        musicRecogniserProgressLayout.visibility = View.GONE
+    private fun toggleMusicHolderWidgets(isEnabled: Boolean) {
+        for (i in audioFiles.indices) {
+            val musicHolder = musicFilesRecyclerView.findViewHolderForAdapterPosition(i)
+                    as MusicHolder
+
+            musicHolder.musicCheckBox.isEnabled = isEnabled
+            musicHolder.musicPlayButton.isEnabled = isEnabled
+            musicHolder.musicRemoveButton.isEnabled = isEnabled
+        }
+    }
+
+    private fun confirmMusicRecognition() {
+        musicRecogniserProgressTextView.text = getString(R.string.confirm_recognition_progress_text)
+        musicRecogniserProgressLayout.visibility = View.VISIBLE
+
+        clearMusicFilesButton.isEnabled = true
+        confirmRecognitionFloatingActionButton.isEnabled = false
     }
 
     companion object {

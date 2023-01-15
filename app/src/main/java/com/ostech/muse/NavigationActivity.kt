@@ -47,7 +47,7 @@ class NavigationActivity : AppCompatActivity() {
             navigationView.setNavigationItemSelectedListener {
                 when (it.itemId) {
                     R.id.music_recogniser_menu_item -> {
-                        if (onScreenFragment !is LoginFragment) {
+                        if (onScreenFragment !is MusicRecogniserFragment) {
                             switchFragment(MusicRecogniserFragment())
                         }
                     }

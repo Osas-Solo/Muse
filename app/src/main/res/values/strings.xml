@@ -127,13 +127,13 @@
     <string name="music_files_selection_limit_text">You have selected more songs than you have left in your subscription plan. \nPlease select %1$d songs or less.</string>
     
     <string name="music_title_text">Title</string>
-    <string name="music_artist_text">Artist</string>
+    <string name="music_artist_text">Artist(s)</string>
     <string name="music_album_text">Album</string>
-    <string name="music_genre_text">Genre</string>
-    <string name="music_track_number_text">Track\nNumber</string>
+    <string name="music_genre_text">Genre(s)</string>
     <string name="music_year_text">Year</string>
     <string name="play_button_text">Play</string>
     <string name="remove_button_text">Remove</string>
 
     <string name="music_recogniser_progress_text">Attempting to perform music recognition,\nplease wait</string>
+    <string name="confirm_recognition_progress_text">Attempting to update music files with metadata \nobtained from music recognition,\nplease wait</string>
 </resources>

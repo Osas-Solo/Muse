@@ -1,7 +1,6 @@
 package com.ostech.muse.music
 
 import android.net.Uri
-import com.google.gson.annotations.SerializedName
 import java.io.File
 import java.util.*
 
@@ -10,8 +9,8 @@ data class Music(
     val uri: Uri,
     val file: File,
     var title: String?,
-    var artist: String?,
+    var artists: MutableList<String>?,
     var album: String?,
-    var genre: String?,
-    var year: Date?,
+    var genres: MutableList<String>?,
+    var year: Int?,
 )

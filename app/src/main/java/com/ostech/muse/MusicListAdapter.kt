@@ -14,14 +14,13 @@ import java.io.IOException
 class MusicHolder(
     private val binding: ListItemMusicBinding
 ) : RecyclerView.ViewHolder(binding.root) {
-    private var musicCheckBox = binding.musicCheckBox
-    private var musicPlayButton = binding.musicPlayImageButton
+    var musicCheckBox = binding.musicCheckBox
+    var musicPlayButton = binding.musicPlayImageButton
     var musicRemoveButton = binding.musicRemoveImageButton
     var musicTitleTextView = binding.musicTitleTextView
     var musicArtistTextView = binding.musicArtistTextView
     var musicAlbumTextView = binding.musicAlbumTextView
     var musicGenreTextView = binding.musicGenreTextView
-    var musicTrackNumberTextView = binding.musicTrackNumberTextView
     var musicYearTextView = binding.musicYearTextView
 
     private val musicPlayer = MediaPlayer()
