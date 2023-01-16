@@ -8,6 +8,7 @@ import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -16,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatTextView
@@ -47,9 +49,11 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Response
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.time.LocalDate
 import java.time.ZoneId
+import java.util.*
 
 
 class MusicRecogniserFragment : Fragment() {
@@ -101,6 +105,7 @@ class MusicRecogniserFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -328,6 +333,8 @@ class MusicRecogniserFragment : Fragment() {
                 Log.e(tag, "can not read $filePath")
             }
 
+            val temporaryFile = extractPortionOfFile(file)
+
             if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
                 val noNetworkSnackbar = view?.let {
                     Snackbar.make(
@@ -345,7 +352,7 @@ class MusicRecogniserFragment : Fragment() {
                 val recognitionResponse: LiveData<Response<RecognitionResponse>> = liveData {
                     try {
                         val requestFile: RequestBody =
-                            file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
+                            temporaryFile!!.asRequestBody("multipart/form-data".toMediaTypeOrNull())
                         val body: MultipartBody.Part =
                             MultipartBody.Part.createFormData("file", file.name, requestFile)
 
@@ -362,6 +369,14 @@ class MusicRecogniserFragment : Fragment() {
                         }
 
                         connectionErrorSnackbar?.show()
+
+                        recognitionCounter++
+
+                        if (recognitionCounter == audioFiles.size) {
+                            musicRecogniserProgressLayout.visibility = View.GONE
+                            confirmRecognitionFloatingActionButton.isEnabled = true
+                            toggleMusicHolderWidgets(true)
+                        }
                     }
                 }
 
@@ -393,12 +408,17 @@ class MusicRecogniserFragment : Fragment() {
 
                                 currentAudioFile.title = metadata.music[0].trackTitle
                                 currentAudioFile.album = metadata.music[0].albumName?.name
-                                val localDate: LocalDate? =
-                                    metadata.music[0].releaseDate?.toInstant()
-                                        ?.atZone(
-                                            ZoneId.systemDefault()
-                                        )?.toLocalDate()
-                                currentAudioFile.year = localDate?.year
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    val localDate: LocalDate? =
+                                        metadata.music[0].releaseDate?.toInstant()
+                                            ?.atZone(ZoneId.systemDefault())?.toLocalDate()
+                                    currentAudioFile.year = localDate?.year
+                                } else {
+                                    val calendar = Calendar.getInstance()
+                                    calendar.time = metadata.music[0].releaseDate!!
+                                    currentAudioFile.year = calendar.get(Calendar.YEAR)
+                                }
 
                                 musicHolder.musicCheckBox.isChecked = true
                                 musicHolder.musicTitleTextView.text = currentAudioFile.title
@@ -434,6 +454,31 @@ class MusicRecogniserFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun extractPortionOfFile(file: File): File? {
+        val temporaryFile = File.createTempFile("temp", null, null)
+        val fileArray = file.readBytes()
+        Log.i(tag, "recogniseMusicFiles: ${file.name} size: ${fileArray.size}")
+
+        val strippedBytesList = mutableListOf<Byte>()
+        val oneMegaByteSize = 1024 * 1024
+
+        for (i in 0 until oneMegaByteSize) {
+            if (fileArray.size <= i) {
+                break
+            }
+
+            strippedBytesList.add(fileArray[i])
+        }
+
+        val strippedBytesArray = strippedBytesList.toByteArray()
+        Log.i(tag, "recogniseMusicFiles: ${file.name} stripped size: ${strippedBytesArray.size}")
+
+        val fileOutputStream = FileOutputStream(temporaryFile)
+        fileOutputStream.write(strippedBytesArray)
+        fileOutputStream.close()
+        return temporaryFile
     }
 
     private fun toggleMusicHolderWidgets(isEnabled: Boolean) {
