@@ -17,7 +17,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatTextView
@@ -51,6 +50,8 @@ import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
@@ -105,7 +106,6 @@ class MusicRecogniserFragment : Fragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -249,6 +249,7 @@ class MusicRecogniserFragment : Fragment() {
                             false,
                             currentAudioFileURI,
                             currentAudioFile!!,
+                            false,
                             null,
                             null,
                             null,
@@ -393,6 +394,8 @@ class MusicRecogniserFragment : Fragment() {
                                         as MusicHolder
 
                             successJSON?.metadata?.let { metadata ->
+                                currentAudioFile.isRecognitionSuccessful = true
+
                                 val artists: List<Artist>? = metadata.music[0].artists
                                 val genres: List<Genre>? = metadata.music[0].genres
                                 currentAudioFile.artists = mutableListOf()
@@ -495,9 +498,35 @@ class MusicRecogniserFragment : Fragment() {
     private fun confirmMusicRecognition() {
         musicRecogniserProgressTextView.text = getString(R.string.confirm_recognition_progress_text)
         musicRecogniserProgressLayout.visibility = View.VISIBLE
+        confirmRecognitionFloatingActionButton.isEnabled = false
+        toggleMusicHolderWidgets(false)
+
+        var confirmationCounter = 0
+
+        audioFiles.forEach { currentAudioFile ->
+            val fileExtension = currentAudioFile.file.name.substringAfterLast(".")
+
+            val newFilePath = "${museStoragePath}/${currentAudioFile.artists?.get(0)} - " +
+                    "${currentAudioFile.title}.$fileExtension"
+            val newFile = File(newFilePath)
+
+            var oldFilePath = currentAudioFile.file.absolutePath
+            oldFilePath = currentAudioFile.file.path.substring(oldFilePath.lastIndexOf(":") + 1)
+            val oldFile = File(oldFilePath)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Files.copy(oldFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            } else {
+                oldFile.copyTo(newFile, true)
+            }
+
+        }
 
         clearMusicFilesButton.isEnabled = true
-        confirmRecognitionFloatingActionButton.isEnabled = false
+    }
+
+    private fun String.replaceIllegalCharacters(musicTitle: String) {
+        this.replace("[\\\\/:*?\"<>|]".toRegex(), "")
     }
 
     companion object {
