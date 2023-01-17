@@ -15,6 +15,10 @@ data class Music(
     var genres: MutableList<String>?,
     var year: Int?,
 ) {
+    fun isSuccessfullyRecognized(): Boolean {
+        return isRecognitionSuccessful && isSelected
+    }
+
     companion object {
         fun getTotalSuccessfullyRecognisedFiles(musicList: List<Music>): Int {
             var count = 0

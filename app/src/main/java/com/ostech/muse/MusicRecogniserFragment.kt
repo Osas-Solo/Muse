@@ -80,8 +80,7 @@ class MusicRecogniserFragment : Fragment() {
     private var audioFilesURIs = listOf<Uri>()
     private var audioFiles = mutableListOf<Music>()
 
-    private var museStoragePath =
-        Environment.getExternalStorageDirectory().absolutePath + "/Music/Muse"
+    private var museStoragePath = "/Music/Muse"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -316,7 +315,7 @@ class MusicRecogniserFragment : Fragment() {
 
         Log.e(tag, museStoragePath)
 
-        val museStoragePathCreationFile = File(museStoragePath)
+        val museStoragePathCreationFile = File(Environment.getExternalStorageDirectory().absolutePath + museStoragePath)
         if (!museStoragePathCreationFile.exists()) {
             museStoragePathCreationFile.mkdirs()
             Log.e(tag, "Muse storage path created")
@@ -502,31 +501,52 @@ class MusicRecogniserFragment : Fragment() {
         toggleMusicHolderWidgets(false)
 
         var confirmationCounter = 0
+        val totalSuccessfulRecognitions = Music.getTotalSuccessfullyRecognisedFiles(audioFiles)
 
         audioFiles.forEach { currentAudioFile ->
-            val fileExtension = currentAudioFile.file.name.substringAfterLast(".")
+            if (currentAudioFile.isSuccessfullyRecognized()) {
+                val fileExtension = currentAudioFile.file.name.substringAfterLast(".")
 
-            val newFilePath = "${museStoragePath}/${currentAudioFile.artists?.get(0)} - " +
-                    "${currentAudioFile.title}.$fileExtension"
-            val newFile = File(newFilePath)
+                val newFilePath = "${museStoragePath}/${currentAudioFile.artists?.get(0)} - " +
+                        "${currentAudioFile.title}.$fileExtension".replaceIllegalCharacters()
+                Log.i(tag, "confirmMusicRecognition: New file path: $newFilePath")
+                val newFile = File(Environment.getExternalStorageDirectory().absolutePath + newFilePath)
 
-            var oldFilePath = currentAudioFile.file.absolutePath
-            oldFilePath = currentAudioFile.file.path.substring(oldFilePath.lastIndexOf(":") + 1)
-            val oldFile = File(oldFilePath)
+                if (newFile.canRead()) {
+                    Log.i(tag, "confirmMusicRecognition: Can read $newFilePath")
+                } else {
+                    Log.i(tag, "confirmMusicRecognition: Cannot read $newFilePath")
+                }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                Files.copy(oldFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            } else {
-                oldFile.copyTo(newFile, true)
+                var oldFilePath = currentAudioFile.file.path
+                oldFilePath = "/" + oldFilePath.substring(oldFilePath.lastIndexOf(":") + 1)
+                Log.i(tag, "confirmMusicRecognition: Old file path: $oldFilePath")
+
+                val oldFile = File(Environment.getExternalStorageDirectory().absolutePath + oldFilePath)
+
+                if (oldFile.canRead()) {
+                    Log.i(tag, "confirmMusicRecognition: Can read $oldFilePath")
+                } else {
+                    Log.i(tag, "confirmMusicRecognition: Cannot read $oldFilePath")
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    Files.copy(oldFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                } else {
+                    oldFile.copyTo(newFile, true)
+                }
+
+                confirmationCounter++
+
+                if (confirmationCounter == totalSuccessfulRecognitions) {
+                    clearMusicFilesButton.isEnabled = true
+                }
             }
-
         }
-
-        clearMusicFilesButton.isEnabled = true
     }
 
-    private fun String.replaceIllegalCharacters(musicTitle: String) {
-        this.replace("[\\\\/:*?\"<>|]".toRegex(), "")
+    private fun String.replaceIllegalCharacters(): String {
+        return this.replace("[\\\\/:*?\"<>|]".toRegex(), "")
     }
 
     companion object {
