@@ -74,7 +74,7 @@
 
     <string name="select_music_files_prompt_text">Select Music Files</string>
     <string name="identify_music_files_prompt_text">Identify Music Files</string>
-    <string name="confirm_music_files_prompt_text">Confirm Changes</string>
+    <string name="confirm_music_files_prompt_text">Confirm Recognition</string>
     <string name="clear_music_files_prompt_text">Remove Selected Music Files</string>
 
     <string name="user_profile_text">User Profile</string>

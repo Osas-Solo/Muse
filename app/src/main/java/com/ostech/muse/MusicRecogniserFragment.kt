@@ -37,8 +37,10 @@ import com.ostech.muse.models.api.response.Artist
 import com.ostech.muse.models.api.response.ErrorResponse
 import com.ostech.muse.models.api.response.Genre
 import com.ostech.muse.models.api.response.RecognitionResponse
+import com.ostech.muse.models.api.response.SubscriptionTypeResponse
 import com.ostech.muse.models.api.response.User
 import com.ostech.muse.models.api.response.UserProfileResponse
+import com.ostech.muse.models.api.response.UserSubscriptionResponse
 import com.ostech.muse.music.Music
 import com.ostech.muse.session.SessionManager
 import kotlinx.coroutines.launch
@@ -46,6 +48,15 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import org.jaudiotagger.audio.AudioFileIO
+import org.jaudiotagger.audio.exceptions.CannotReadException
+import org.jaudiotagger.audio.exceptions.CannotWriteException
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException
+import org.jaudiotagger.audio.mp3.MP3File
+import org.jaudiotagger.tag.FieldKey
+import org.jaudiotagger.tag.TagException
+import org.jaudiotagger.tag.id3.AbstractID3v2Tag
 import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
@@ -315,7 +326,8 @@ class MusicRecogniserFragment : Fragment() {
 
         Log.e(tag, museStoragePath)
 
-        val museStoragePathCreationFile = File(Environment.getExternalStorageDirectory().absolutePath + museStoragePath)
+        val museStoragePathCreationFile =
+            File(Environment.getExternalStorageDirectory().absolutePath + museStoragePath)
         if (!museStoragePathCreationFile.exists()) {
             museStoragePathCreationFile.mkdirs()
             Log.e(tag, "Muse storage path created")
@@ -510,7 +522,8 @@ class MusicRecogniserFragment : Fragment() {
                 val newFilePath = "${museStoragePath}/${currentAudioFile.artists?.get(0)} - " +
                         "${currentAudioFile.title}.$fileExtension".replaceIllegalCharacters()
                 Log.i(tag, "confirmMusicRecognition: New file path: $newFilePath")
-                val newFile = File(Environment.getExternalStorageDirectory().absolutePath + newFilePath)
+                val newFile =
+                    File(Environment.getExternalStorageDirectory().absolutePath + newFilePath)
 
                 if (newFile.canRead()) {
                     Log.i(tag, "confirmMusicRecognition: Can read $newFilePath")
@@ -522,7 +535,8 @@ class MusicRecogniserFragment : Fragment() {
                 oldFilePath = "/" + oldFilePath.substring(oldFilePath.lastIndexOf(":") + 1)
                 Log.i(tag, "confirmMusicRecognition: Old file path: $oldFilePath")
 
-                val oldFile = File(Environment.getExternalStorageDirectory().absolutePath + oldFilePath)
+                val oldFile =
+                    File(Environment.getExternalStorageDirectory().absolutePath + oldFilePath)
 
                 if (oldFile.canRead()) {
                     Log.i(tag, "confirmMusicRecognition: Can read $oldFilePath")
@@ -531,15 +545,27 @@ class MusicRecogniserFragment : Fragment() {
                 }
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Files.copy(oldFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                    Files.copy(
+                        oldFile.toPath(),
+                        newFile.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING
+                    )
                 } else {
                     oldFile.copyTo(newFile, true)
+                }
+
+                if (fileExtension == "mp3") {
+                    setMP3MusicTag(currentAudioFile)
+                } else {
+                    setOtherMusicFormatTag(currentAudioFile)
                 }
 
                 confirmationCounter++
 
                 if (confirmationCounter == totalSuccessfulRecognitions) {
+                    updateSubscriptionPlan(totalSuccessfulRecognitions)
                     clearMusicFilesButton.isEnabled = true
+                    musicRecogniserProgressLayout.visibility = View.GONE
                 }
             }
         }
@@ -547,6 +573,171 @@ class MusicRecogniserFragment : Fragment() {
 
     private fun String.replaceIllegalCharacters(): String {
         return this.replace("[\\\\/:*?\"<>|]".toRegex(), "")
+    }
+
+    private fun setMP3MusicTag(music: Music) {
+        try {
+            var filePath = music.file.path
+            filePath = "/" + filePath.substring(filePath.lastIndexOf(":") + 1)
+            val audioFile =
+                MP3File(Environment.getExternalStorageDirectory().absolutePath + filePath)
+            val audioTag: AbstractID3v2Tag = audioFile.iD3v2Tag
+            audioTag.deleteField(FieldKey.ARTIST)
+            audioTag.deleteField(FieldKey.TITLE)
+            audioTag.deleteField(FieldKey.ALBUM)
+            audioTag.deleteField(FieldKey.ALBUM_ARTIST)
+            audioTag.deleteField(FieldKey.GENRE)
+
+            var artists = ""
+
+            for (i in music.artists!!.indices) {
+                artists += music.artists!![i]
+
+                if (i != music.artists!!.size - 1) {
+                    artists += ", "
+                }
+            }
+
+            var genres = ""
+
+            for (i in music.genres!!.indices) {
+                genres += music.genres!![i]
+
+                if (i != music.genres!!.size - 1) {
+                    genres += ", "
+                }
+            }
+
+            audioTag.setField(FieldKey.ARTIST, artists)
+            audioTag.setField(FieldKey.TITLE, music.title)
+            audioTag.setField(FieldKey.ALBUM, music.album)
+            audioTag.setField(FieldKey.ALBUM_ARTIST, music.artists?.get(0))
+            audioTag.setField(FieldKey.GENRE, genres)
+            audioFile.commit()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } catch (e: CannotWriteException) {
+            e.printStackTrace()
+        } catch (e: InvalidAudioFrameException) {
+            e.printStackTrace()
+        } catch (e: TagException) {
+            e.printStackTrace()
+        } catch (e: ReadOnlyFileException) {
+            e.printStackTrace()
+        } catch (e: CannotReadException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun setOtherMusicFormatTag(music: Music) {
+        try {
+            var filePath = music.file.path
+            filePath = "/" + filePath.substring(filePath.lastIndexOf(":") + 1)
+            val audioFile =
+                AudioFileIO.read(File(Environment.getExternalStorageDirectory().absolutePath + filePath))
+            val audioTag = audioFile.tagOrCreateDefault
+            audioTag.deleteField(FieldKey.ARTIST)
+            audioTag.deleteField(FieldKey.TITLE)
+            audioTag.deleteField(FieldKey.ALBUM)
+            audioTag.deleteField(FieldKey.ALBUM_ARTIST)
+            audioTag.deleteField(FieldKey.GENRE)
+
+            var artists = ""
+
+            for (i in music.artists!!.indices) {
+                artists += music.artists!![i]
+
+                if (i != music.artists!!.size - 1) {
+                    artists += ", "
+                }
+            }
+
+            var genres = ""
+
+            for (i in music.genres!!.indices) {
+                genres += music.genres!![i]
+
+                if (i != music.genres!!.size - 1) {
+                    genres += ", "
+                }
+            }
+
+            audioTag.setField(FieldKey.ARTIST, artists)
+            audioTag.setField(FieldKey.TITLE, music.title)
+            audioTag.setField(FieldKey.ALBUM, music.album)
+            audioTag.setField(FieldKey.ALBUM_ARTIST, music.artists?.get(0))
+            audioTag.setField(FieldKey.GENRE, genres)
+            audioFile.commit()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } catch (e: CannotWriteException) {
+            e.printStackTrace()
+        } catch (e: InvalidAudioFrameException) {
+            e.printStackTrace()
+        } catch (e: TagException) {
+            e.printStackTrace()
+        } catch (e: ReadOnlyFileException) {
+            e.printStackTrace()
+        } catch (e: CannotReadException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun updateSubscriptionPlan(numberOfRecognisedSongs: Int) {
+        val userID = context?.let { SessionManager(it).fetchUserID() }
+
+        if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
+            Log.i(tag, "updateSubscriptionPlan: no internet connection")
+        } else {
+            val profileResponse: LiveData<Response<UserProfileResponse>> = liveData {
+                try {
+                    val response = userID?.let { MuseAPIBuilder.museAPIService.getUserProfile(it) }
+                    response?.let { emit(it) }
+                } catch (connectionException: IOException) {
+                    Log.i(tag, "updateSubscriptionPlan: $connectionException")
+                }
+            }
+
+            profileResponse.observe(viewLifecycleOwner) { it ->
+                if (it.isSuccessful) {
+                    val successJSON = it.body()
+                    Log.i(tag, "Profile response: $successJSON")
+
+                    loggedInUser = successJSON?.user!!
+                    Log.i(tag, "Logged in user: $loggedInUser")
+
+                    val subscriptionPlanID = loggedInUser?.currentSubscription?.subscriptionID
+
+                    if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
+                        Log.i(tag, "updateSubscriptionPlan: no internet connection")
+                    } else {
+                        val subscriptionUpdateResponse: LiveData<Response<UserSubscriptionResponse>> = liveData {
+                            try {
+                                val response =
+                                    userID?.let { MuseAPIBuilder.museAPIService.updateSubscription(it,
+                                        subscriptionPlanID!!, numberOfRecognisedSongs) }
+                                response?.let { emit(it) }
+                            } catch (connectionException: IOException) {
+                                Log.i(tag, "updateSubscriptionPlan: $connectionException")
+                            }
+                        }
+
+                        subscriptionUpdateResponse.observe(viewLifecycleOwner) { it ->
+                            if (it.isSuccessful) {
+                                val subscriptionUpdateSuccessJSON = it.body()
+                                Log.i(tag, "Subscription update response: $subscriptionUpdateSuccessJSON")
+                            } else {
+                                val subscriptionUpdateErrorJSONString = it.errorBody()?.string()
+                                Log.i(tag, "Subscription update response: $subscriptionUpdateErrorJSONString")
+                            }
+                        }
+                    }
+                } else {
+                    val errorJSONString = it.errorBody()?.string()
+                    Log.i(tag, "Profile response: $errorJSONString")
+                }
+            }
+        }
     }
 
     companion object {
