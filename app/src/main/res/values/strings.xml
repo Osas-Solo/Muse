@@ -136,4 +136,8 @@
 
     <string name="music_recogniser_progress_text">Attempting to perform music recognition,\nplease wait</string>
     <string name="confirm_recognition_progress_text">Attempting to update music files with metadata \nobtained from music recognition,\nplease wait</string>
+
+    <string name="successful_confirmation_message">
+        %1$d songs were successfully updated with metadata obtained from music recognition
+    </string>
 </resources>

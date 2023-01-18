@@ -43,7 +43,6 @@ class LoginFragment : Fragment() {
 
     private lateinit var loginButton: AppCompatButton
     private lateinit var loginProgressLayout: LinearLayout
-    private lateinit var forgotPasswordTextView: AppCompatTextView
     private lateinit var signupAlternativeTextView: AppCompatTextView
 
     private lateinit var loggedInUser: User
@@ -63,7 +62,6 @@ class LoginFragment : Fragment() {
 
         loginButton = binding.loginButton
         loginProgressLayout = binding.loginProgressLayout
-        forgotPasswordTextView = binding.loginForgotPasswordTextView
         signupAlternativeTextView = binding.signupAlternativeTextView
 
         return binding.root
@@ -207,7 +205,6 @@ class LoginFragment : Fragment() {
     private fun toggleLoginInputs(isEnabled: Boolean) {
         loginEmailEditText.isEnabled = isEnabled
         loginPasswordEditText.isEnabled = isEnabled
-        forgotPasswordTextView.isEnabled = isEnabled
         signupAlternativeTextView.isEnabled = isEnabled
     }
 

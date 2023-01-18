@@ -107,14 +107,6 @@
                     android:layout_gravity="center"
                     android:indeterminate="true"/>
             </LinearLayout>
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/login_forgot_password_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/forgot_password_prompt_text"
-                android:layout_gravity="center"/>
-
         </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatTextView

@@ -566,6 +566,8 @@ class MusicRecogniserFragment : Fragment() {
                     updateSubscriptionPlan(totalSuccessfulRecognitions)
                     clearMusicFilesButton.isEnabled = true
                     musicRecogniserProgressLayout.visibility = View.GONE
+
+                    displaySuccessfulConfirmationDialog(totalSuccessfulRecognitions)
                 }
             }
         }
@@ -737,6 +739,15 @@ class MusicRecogniserFragment : Fragment() {
                     Log.i(tag, "Profile response: $errorJSONString")
                 }
             }
+        }
+    }
+
+    private fun displaySuccessfulConfirmationDialog(numberOfRecognisedSongs: Int) {
+        context?.let { it1 ->
+            AlertDialog.Builder(it1)
+                .setMessage(getString(R.string.successful_confirmation_message, numberOfRecognisedSongs))
+                .show()
+
         }
     }
 
