@@ -544,20 +544,27 @@ class MusicRecogniserFragment : Fragment() {
                     Log.i(tag, "confirmMusicRecognition: Cannot read $oldFilePath")
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    Files.copy(
-                        oldFile.toPath(),
-                        newFile.toPath(),
-                        StandardCopyOption.REPLACE_EXISTING
-                    )
-                } else {
-                    oldFile.copyTo(newFile, true)
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        Files.copy(
+                            oldFile.toPath(),
+                            newFile.toPath(),
+                            StandardCopyOption.REPLACE_EXISTING
+                        )
+                    } else {
+                        oldFile.copyTo(newFile, true)
+                    }
+
+                    Log.i(tag, "confirmMusicRecognition: ${newFile.name} copied successfully")
+                } catch (e: Exception) {
+                    Log.e(tag, "confirmMusicRecognition: ${newFile.name} copy failed")
+                    e.printStackTrace()
                 }
 
                 if (fileExtension == "mp3") {
-                    setMP3MusicTag(currentAudioFile)
+                    setMP3MusicTag(currentAudioFile, newFile)
                 } else {
-                    setOtherMusicFormatTag(currentAudioFile)
+                    setOtherMusicFormatTag(currentAudioFile, newFile)
                 }
 
                 confirmationCounter++
@@ -577,18 +584,16 @@ class MusicRecogniserFragment : Fragment() {
         return this.replace("[\\\\/:*?\"<>|]".toRegex(), "")
     }
 
-    private fun setMP3MusicTag(music: Music) {
+    private fun setMP3MusicTag(music: Music, newMusicFile: File) {
         try {
-            var filePath = music.file.path
-            filePath = "/" + filePath.substring(filePath.lastIndexOf(":") + 1)
+            val filePath = newMusicFile.path
             val audioFile =
-                MP3File(Environment.getExternalStorageDirectory().absolutePath + filePath)
+                MP3File(filePath)
             val audioTag: AbstractID3v2Tag = audioFile.iD3v2Tag
             audioTag.deleteField(FieldKey.ARTIST)
             audioTag.deleteField(FieldKey.TITLE)
             audioTag.deleteField(FieldKey.ALBUM)
             audioTag.deleteField(FieldKey.ALBUM_ARTIST)
-            audioTag.deleteField(FieldKey.GENRE)
 
             var artists = ""
 
@@ -614,7 +619,17 @@ class MusicRecogniserFragment : Fragment() {
             audioTag.setField(FieldKey.TITLE, music.title)
             audioTag.setField(FieldKey.ALBUM, music.album)
             audioTag.setField(FieldKey.ALBUM_ARTIST, music.artists?.get(0))
-            audioTag.setField(FieldKey.GENRE, genres)
+
+            if (genres.isNotEmpty()) {
+                audioTag.deleteField(FieldKey.GENRE)
+                audioTag.setField(FieldKey.GENRE, genres)
+            }
+
+            music.year?.let {
+                audioTag.deleteField(FieldKey.YEAR)
+                audioTag.setField(FieldKey.YEAR, it.toString())
+            }
+
             audioFile.commit()
         } catch (e: IOException) {
             e.printStackTrace()
@@ -631,18 +646,16 @@ class MusicRecogniserFragment : Fragment() {
         }
     }
 
-    private fun setOtherMusicFormatTag(music: Music) {
+    private fun setOtherMusicFormatTag(music: Music, newMusicFile: File) {
         try {
-            var filePath = music.file.path
-            filePath = "/" + filePath.substring(filePath.lastIndexOf(":") + 1)
+            val filePath = newMusicFile.path
             val audioFile =
-                AudioFileIO.read(File(Environment.getExternalStorageDirectory().absolutePath + filePath))
+                AudioFileIO.read(File(filePath))
             val audioTag = audioFile.tagOrCreateDefault
             audioTag.deleteField(FieldKey.ARTIST)
             audioTag.deleteField(FieldKey.TITLE)
             audioTag.deleteField(FieldKey.ALBUM)
             audioTag.deleteField(FieldKey.ALBUM_ARTIST)
-            audioTag.deleteField(FieldKey.GENRE)
 
             var artists = ""
 
@@ -668,7 +681,17 @@ class MusicRecogniserFragment : Fragment() {
             audioTag.setField(FieldKey.TITLE, music.title)
             audioTag.setField(FieldKey.ALBUM, music.album)
             audioTag.setField(FieldKey.ALBUM_ARTIST, music.artists?.get(0))
-            audioTag.setField(FieldKey.GENRE, genres)
+
+            if (genres.isNotEmpty()) {
+                audioTag.deleteField(FieldKey.GENRE)
+                audioTag.setField(FieldKey.GENRE, genres)
+            }
+
+            music.year?.let {
+                audioTag.deleteField(FieldKey.YEAR)
+                audioTag.setField(FieldKey.YEAR, it.toString())
+            }
+
             audioFile.commit()
         } catch (e: IOException) {
             e.printStackTrace()
@@ -745,9 +768,9 @@ class MusicRecogniserFragment : Fragment() {
     private fun displaySuccessfulConfirmationDialog(numberOfRecognisedSongs: Int) {
         context?.let { it1 ->
             AlertDialog.Builder(it1)
-                .setMessage(getString(R.string.successful_confirmation_message, numberOfRecognisedSongs))
+                .setMessage(resources.getQuantityString(R.plurals.successful_confirmation_message, numberOfRecognisedSongs))
+                .setPositiveButton("OK") { _, _ -> }
                 .show()
-
         }
     }
 
