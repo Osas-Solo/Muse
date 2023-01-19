@@ -768,7 +768,7 @@ class MusicRecogniserFragment : Fragment() {
     private fun displaySuccessfulConfirmationDialog(numberOfRecognisedSongs: Int) {
         context?.let { it1 ->
             AlertDialog.Builder(it1)
-                .setMessage(resources.getQuantityString(R.plurals.successful_confirmation_message, numberOfRecognisedSongs))
+                .setMessage(resources.getQuantityString(R.plurals.successful_confirmation_message, numberOfRecognisedSongs, numberOfRecognisedSongs))
                 .setPositiveButton("OK") { _, _ -> }
                 .show()
         }
