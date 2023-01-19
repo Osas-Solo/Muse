@@ -21,6 +21,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.app.ActivityCompat
+import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
@@ -37,7 +39,6 @@ import com.ostech.muse.models.api.response.Artist
 import com.ostech.muse.models.api.response.ErrorResponse
 import com.ostech.muse.models.api.response.Genre
 import com.ostech.muse.models.api.response.RecognitionResponse
-import com.ostech.muse.models.api.response.SubscriptionTypeResponse
 import com.ostech.muse.models.api.response.User
 import com.ostech.muse.models.api.response.UserProfileResponse
 import com.ostech.muse.models.api.response.UserSubscriptionResponse
@@ -512,6 +513,9 @@ class MusicRecogniserFragment : Fragment() {
         confirmRecognitionFloatingActionButton.isEnabled = false
         toggleMusicHolderWidgets(false)
 
+        val writeStoragePermissionIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        writeStorageAccessPermissionGranter.launch(writeStoragePermissionIntent.action?.toUri())
+
         var confirmationCounter = 0
         val totalSuccessfulRecognitions = Music.getTotalSuccessfullyRecognisedFiles(audioFiles)
 
@@ -771,6 +775,25 @@ class MusicRecogniserFragment : Fragment() {
                 .setMessage(resources.getQuantityString(R.plurals.successful_confirmation_message, numberOfRecognisedSongs, numberOfRecognisedSongs))
                 .setPositiveButton("OK") { _, _ -> }
                 .show()
+        }
+    }
+
+    private val writeStorageAccessPermissionGranter = registerForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { writeStorageAccessPermissionGranterResult ->
+        writeStorageAccessPermissionGranterResult?.let {
+            context?.let { it1 -> DocumentFile.fromTreeUri(it1, writeStorageAccessPermissionGranterResult) }
+
+            activity?.grantUriPermission(
+                requireActivity().packageName,
+                writeStorageAccessPermissionGranterResult,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+
+            activity?.contentResolver?.takePersistableUriPermission(
+                writeStorageAccessPermissionGranterResult,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
         }
     }
 
