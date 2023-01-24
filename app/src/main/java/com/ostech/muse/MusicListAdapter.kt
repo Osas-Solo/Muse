@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ostech.muse.databinding.ListItemMusicBinding
 import com.ostech.muse.music.Music
-import java.io.File
 import java.io.IOException
 
 class MusicHolder(
@@ -66,7 +65,7 @@ class MusicHolder(
     fun stopMusic() {
         musicPlayer.stop()
         musicPlayer.reset()
-        Log.i("Music Holder", "playMusic: Stopping music")
+        Log.i("Music Holder", "stopMusic: Stopping music")
     }
 }
 

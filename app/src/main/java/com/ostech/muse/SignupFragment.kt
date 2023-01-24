@@ -25,8 +25,8 @@ import com.google.gson.Gson
 import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.api.NetworkUtil
 import com.ostech.muse.databinding.FragmentSignupBinding
-import com.ostech.muse.models.api.response.ErrorResponse
 import com.ostech.muse.models.SignupDetailsVerification
+import com.ostech.muse.models.api.response.ErrorResponse
 import com.ostech.muse.models.api.response.User
 import com.ostech.muse.models.api.response.UserSignupResponse
 import retrofit2.Response

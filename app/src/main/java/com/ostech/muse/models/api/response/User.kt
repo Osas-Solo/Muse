@@ -1,7 +1,7 @@
 package com.ostech.muse.models.api.response
 
 import com.google.gson.annotations.SerializedName
-import java.util.Date
+import java.util.*
 
 data class User(
     @SerializedName("userID")

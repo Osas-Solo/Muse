@@ -21,8 +21,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.ostech.muse.api.MuseAPIBuilder
 import com.ostech.muse.databinding.FragmentSubscriptionPaymentBinding
-import com.ostech.muse.models.api.response.ErrorResponse
 import com.ostech.muse.models.PriceUtils
+import com.ostech.muse.models.api.response.ErrorResponse
 import com.ostech.muse.models.api.response.Subscription
 import com.ostech.muse.models.api.response.UserSubscriptionResponse
 import com.ostech.muse.session.SessionManager

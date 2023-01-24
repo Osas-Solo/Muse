@@ -43,6 +43,7 @@ import com.ostech.muse.models.api.response.User
 import com.ostech.muse.models.api.response.UserProfileResponse
 import com.ostech.muse.models.api.response.UserSubscriptionResponse
 import com.ostech.muse.music.Music
+import com.ostech.muse.music.Music.Companion.getTotalSuccessfullyRecognisedFiles
 import com.ostech.muse.session.SessionManager
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -413,11 +414,11 @@ class MusicRecogniserFragment : Fragment() {
                                 currentAudioFile.artists = mutableListOf()
                                 currentAudioFile.genres = mutableListOf()
 
-                                artists?.forEach() { artist ->
+                                artists?.forEach { artist ->
                                     currentAudioFile.artists?.add(artist.name)
                                 }
 
-                                genres?.forEach() { genre ->
+                                genres?.forEach { genre ->
                                     currentAudioFile.genres?.add(genre.name)
                                 }
 
@@ -450,6 +451,7 @@ class MusicRecogniserFragment : Fragment() {
 
                             if (recognitionCounter == audioFiles.size) {
                                 musicRecogniserProgressLayout.visibility = View.GONE
+                                clearMusicFilesButton.isEnabled = true
                                 confirmRecognitionFloatingActionButton.isEnabled = true
                                 toggleMusicHolderWidgets(true)
                             }
@@ -461,6 +463,7 @@ class MusicRecogniserFragment : Fragment() {
 
                             if (recognitionCounter == audioFiles.size) {
                                 musicRecogniserProgressLayout.visibility = View.GONE
+                                clearMusicFilesButton.isEnabled = true
                                 confirmRecognitionFloatingActionButton.isEnabled = true
                                 toggleMusicHolderWidgets(true)
                             }
@@ -508,21 +511,30 @@ class MusicRecogniserFragment : Fragment() {
     }
 
     private fun confirmMusicRecognition() {
-        musicRecogniserProgressTextView.text = getString(R.string.confirm_recognition_progress_text)
-        musicRecogniserProgressLayout.visibility = View.VISIBLE
-        confirmRecognitionFloatingActionButton.isEnabled = false
-        toggleMusicHolderWidgets(false)
+        if (audioFiles.getTotalSuccessfullyRecognisedFiles() == 0) {
+            context?.let { it ->
+                AlertDialog.Builder(it)
+                    .setMessage(getText(R.string.no_file_selected_for_confirmation_message))
+                    .setPositiveButton("OK") { _, _ -> }
+                    .show()
+            }
+        } else {
+            musicRecogniserProgressTextView.text = getString(R.string.confirm_recognition_progress_text)
+            musicRecogniserProgressLayout.visibility = View.VISIBLE
+            confirmRecognitionFloatingActionButton.isEnabled = false
+            toggleMusicHolderWidgets(false)
 
-        context?.let { it ->
-            AlertDialog.Builder(it)
-                .setMessage(getText(R.string.confirmation_permission_message))
-                .setPositiveButton("OK") { _, _ ->
-                    run {
-                        val writeStoragePermissionIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                        writeStorageAccessPermissionGranter.launch(writeStoragePermissionIntent.action?.toUri())
+            context?.let { it ->
+                AlertDialog.Builder(it)
+                    .setMessage(getText(R.string.confirmation_permission_message))
+                    .setPositiveButton("OK") { _, _ ->
+                        run {
+                            val writeStoragePermissionIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                            writeStorageAccessPermissionGranter.launch(writeStoragePermissionIntent.action?.toUri())
+                        }
                     }
-                }
-                .show()
+                    .show()
+            }
         }
     }
 
@@ -535,7 +547,7 @@ class MusicRecogniserFragment : Fragment() {
             val filePath = newMusicFile.path
             val audioFile =
                 MP3File(filePath)
-            val audioTag: AbstractID3v2Tag = audioFile.iD3v2Tag
+            val audioTag: AbstractID3v2Tag = audioFile.tagOrCreateDefault as AbstractID3v2Tag
             audioTag.deleteField(FieldKey.ARTIST)
             audioTag.deleteField(FieldKey.TITLE)
             audioTag.deleteField(FieldKey.ALBUM)
@@ -761,7 +773,7 @@ class MusicRecogniserFragment : Fragment() {
 
                 var confirmationCounter = 0
                 val totalSuccessfulRecognitions =
-                    Music.getTotalSuccessfullyRecognisedFiles(audioFiles)
+                    audioFiles.getTotalSuccessfullyRecognisedFiles()
 
                 audioFiles.forEach { currentAudioFile ->
                     if (currentAudioFile.isSuccessfullyRecognized()) {
@@ -856,7 +868,7 @@ class MusicRecogniserFragment : Fragment() {
         )
     }
 
-    fun verifyPermissions() {
+    private fun verifyPermissions() {
         for (i in permissions.indices) {
             val permission = context?.let { ActivityCompat.checkSelfPermission(it, permissions[i]) }
             if (permission != PackageManager.PERMISSION_GRANTED) {

@@ -2,7 +2,6 @@ package com.ostech.muse.music
 
 import android.net.Uri
 import java.io.File
-import java.util.*
 
 data class Music(
     var isSelected: Boolean = false,
@@ -20,10 +19,10 @@ data class Music(
     }
 
     companion object {
-        fun getTotalSuccessfullyRecognisedFiles(musicList: List<Music>): Int {
+        fun List<Music>.getTotalSuccessfullyRecognisedFiles(): Int {
             var count = 0
 
-            for (currentMusic in musicList) {
+            for (currentMusic in this) {
                 if (currentMusic.isRecognitionSuccessful && currentMusic.isSelected) {
                     count++
                 }

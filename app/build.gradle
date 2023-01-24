@@ -7,8 +7,6 @@ android {
     namespace 'com.ostech.muse'
     compileSdk 33
 
-    sourceSets.main.jniLibs.srcDirs = ["libs"]
-
     defaultConfig {
         applicationId "com.ostech.muse"
         minSdk 21
@@ -17,10 +15,8 @@ android {
         versionName "0.90"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "MUSE_API_URL", MUSE_API_URL)
         buildConfigField("String", "PAYSTACK_PUBLIC_KEY", PAYSTACK_PUBLIC_KEY)
-        buildConfigField("String", "ACR_CLOUD_HOST", ACR_CLOUD_HOST)
-        buildConfigField("String", "ACR_CLOUD_ACCESS_KEY", ACR_CLOUD_ACCESS_KEY)
-        buildConfigField("String", "ACR_CLOUD_SECRET_KEY", ACR_CLOUD_SECRET_KEY)
     }
 
     buildTypes {

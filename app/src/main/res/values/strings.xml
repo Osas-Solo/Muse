@@ -153,4 +153,9 @@
     <string name="confirmation_permission_not_granted_message">
         Sorry, you have not granted permission to use the Muse folder
     </string>
+    
+    <string name="no_file_selected_for_confirmation_message">
+        Sorry, you have either not selected any file for recognition confirmation or no song was
+        successfully recognised
+    </string>
 </resources>
