@@ -388,6 +388,7 @@ class MusicRecogniserFragment : Fragment() {
 
                         if (recognitionCounter == audioFiles.size) {
                             musicRecogniserProgressLayout.visibility = View.GONE
+                            clearMusicFilesButton.isEnabled = true
                             confirmRecognitionFloatingActionButton.isEnabled = true
                             toggleMusicHolderWidgets(true)
                         }
