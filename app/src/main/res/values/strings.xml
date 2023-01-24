@@ -145,4 +145,12 @@
             %1d songs were successfully updated with metadata obtained from music recognition
         </item>
     </plurals>
+    
+    <string name="confirmation_permission_message">
+        Please, grant permission to use this folder: Music/Muse in your internal storage
+    </string>
+
+    <string name="confirmation_permission_not_granted_message">
+        Sorry, you have not granted permission to use the Muse folder
+    </string>
 </resources>

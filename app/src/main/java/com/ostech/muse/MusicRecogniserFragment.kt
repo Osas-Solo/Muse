@@ -513,74 +513,16 @@ class MusicRecogniserFragment : Fragment() {
         confirmRecognitionFloatingActionButton.isEnabled = false
         toggleMusicHolderWidgets(false)
 
-        val writeStoragePermissionIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        writeStorageAccessPermissionGranter.launch(writeStoragePermissionIntent.action?.toUri())
-
-        var confirmationCounter = 0
-        val totalSuccessfulRecognitions = Music.getTotalSuccessfullyRecognisedFiles(audioFiles)
-
-        audioFiles.forEach { currentAudioFile ->
-            if (currentAudioFile.isSuccessfullyRecognized()) {
-                val fileExtension = currentAudioFile.file.name.substringAfterLast(".")
-
-                val newFilePath = "${museStoragePath}/${currentAudioFile.artists?.get(0)} - " +
-                        "${currentAudioFile.title}.$fileExtension".replaceIllegalCharacters()
-                Log.i(tag, "confirmMusicRecognition: New file path: $newFilePath")
-                val newFile =
-                    File(Environment.getExternalStorageDirectory().absolutePath + newFilePath)
-
-                if (newFile.canRead()) {
-                    Log.i(tag, "confirmMusicRecognition: Can read $newFilePath")
-                } else {
-                    Log.i(tag, "confirmMusicRecognition: Cannot read $newFilePath")
-                }
-
-                var oldFilePath = currentAudioFile.file.path
-                oldFilePath = "/" + oldFilePath.substring(oldFilePath.lastIndexOf(":") + 1)
-                Log.i(tag, "confirmMusicRecognition: Old file path: $oldFilePath")
-
-                val oldFile =
-                    File(Environment.getExternalStorageDirectory().absolutePath + oldFilePath)
-
-                if (oldFile.canRead()) {
-                    Log.i(tag, "confirmMusicRecognition: Can read $oldFilePath")
-                } else {
-                    Log.i(tag, "confirmMusicRecognition: Cannot read $oldFilePath")
-                }
-
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        Files.copy(
-                            oldFile.toPath(),
-                            newFile.toPath(),
-                            StandardCopyOption.REPLACE_EXISTING
-                        )
-                    } else {
-                        oldFile.copyTo(newFile, true)
+        context?.let { it ->
+            AlertDialog.Builder(it)
+                .setMessage(getText(R.string.confirmation_permission_message))
+                .setPositiveButton("OK") { _, _ ->
+                    run {
+                        val writeStoragePermissionIntent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                        writeStorageAccessPermissionGranter.launch(writeStoragePermissionIntent.action?.toUri())
                     }
-
-                    Log.i(tag, "confirmMusicRecognition: ${newFile.name} copied successfully")
-                } catch (e: Exception) {
-                    Log.e(tag, "confirmMusicRecognition: ${newFile.name} copy failed")
-                    e.printStackTrace()
                 }
-
-                if (fileExtension == "mp3") {
-                    setMP3MusicTag(currentAudioFile, newFile)
-                } else {
-                    setOtherMusicFormatTag(currentAudioFile, newFile)
-                }
-
-                confirmationCounter++
-
-                if (confirmationCounter == totalSuccessfulRecognitions) {
-                    updateSubscriptionPlan(totalSuccessfulRecognitions)
-                    clearMusicFilesButton.isEnabled = true
-                    musicRecogniserProgressLayout.visibility = View.GONE
-
-                    displaySuccessfulConfirmationDialog(totalSuccessfulRecognitions)
-                }
-            }
+                .show()
         }
     }
 
@@ -740,24 +682,35 @@ class MusicRecogniserFragment : Fragment() {
                     if (NetworkUtil.getConnectivityStatus(context) == NetworkUtil.TYPE_NOT_CONNECTED) {
                         Log.i(tag, "updateSubscriptionPlan: no internet connection")
                     } else {
-                        val subscriptionUpdateResponse: LiveData<Response<UserSubscriptionResponse>> = liveData {
-                            try {
-                                val response =
-                                    userID?.let { MuseAPIBuilder.museAPIService.updateSubscription(it,
-                                        subscriptionPlanID!!, numberOfRecognisedSongs) }
-                                response?.let { emit(it) }
-                            } catch (connectionException: IOException) {
-                                Log.i(tag, "updateSubscriptionPlan: $connectionException")
+                        val subscriptionUpdateResponse: LiveData<Response<UserSubscriptionResponse>> =
+                            liveData {
+                                try {
+                                    val response =
+                                        userID?.let {
+                                            MuseAPIBuilder.museAPIService.updateSubscription(
+                                                it,
+                                                subscriptionPlanID!!, numberOfRecognisedSongs
+                                            )
+                                        }
+                                    response?.let { emit(it) }
+                                } catch (connectionException: IOException) {
+                                    Log.i(tag, "updateSubscriptionPlan: $connectionException")
+                                }
                             }
-                        }
 
-                        subscriptionUpdateResponse.observe(viewLifecycleOwner) { it ->
-                            if (it.isSuccessful) {
-                                val subscriptionUpdateSuccessJSON = it.body()
-                                Log.i(tag, "Subscription update response: $subscriptionUpdateSuccessJSON")
+                        subscriptionUpdateResponse.observe(viewLifecycleOwner) { it1 ->
+                            if (it1.isSuccessful) {
+                                val subscriptionUpdateSuccessJSON = it1.body()
+                                Log.i(
+                                    tag,
+                                    "Subscription update response: $subscriptionUpdateSuccessJSON"
+                                )
                             } else {
-                                val subscriptionUpdateErrorJSONString = it.errorBody()?.string()
-                                Log.i(tag, "Subscription update response: $subscriptionUpdateErrorJSONString")
+                                val subscriptionUpdateErrorJSONString = it1.errorBody()?.string()
+                                Log.i(
+                                    tag,
+                                    "Subscription update response: $subscriptionUpdateErrorJSONString"
+                                )
                             }
                         }
                     }
@@ -770,9 +723,15 @@ class MusicRecogniserFragment : Fragment() {
     }
 
     private fun displaySuccessfulConfirmationDialog(numberOfRecognisedSongs: Int) {
-        context?.let { it1 ->
-            AlertDialog.Builder(it1)
-                .setMessage(resources.getQuantityString(R.plurals.successful_confirmation_message, numberOfRecognisedSongs, numberOfRecognisedSongs))
+        context?.let { it ->
+            AlertDialog.Builder(it)
+                .setMessage(
+                    resources.getQuantityString(
+                        R.plurals.successful_confirmation_message,
+                        numberOfRecognisedSongs,
+                        numberOfRecognisedSongs
+                    )
+                )
                 .setPositiveButton("OK") { _, _ -> }
                 .show()
         }
@@ -782,18 +741,107 @@ class MusicRecogniserFragment : Fragment() {
         ActivityResultContracts.OpenDocumentTree()
     ) { writeStorageAccessPermissionGranterResult ->
         writeStorageAccessPermissionGranterResult?.let {
-            context?.let { it1 -> DocumentFile.fromTreeUri(it1, writeStorageAccessPermissionGranterResult) }
+            Log.i(tag, "Folder path: ${it.path}")
 
-            activity?.grantUriPermission(
-                requireActivity().packageName,
-                writeStorageAccessPermissionGranterResult,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            )
+            if (it.path.equals("/tree/primary:Music/Muse")) {
+                context?.let { it1 ->
+                    DocumentFile.fromTreeUri(it1, writeStorageAccessPermissionGranterResult)
+                }
 
-            activity?.contentResolver?.takePersistableUriPermission(
-                writeStorageAccessPermissionGranterResult,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            )
+                activity?.grantUriPermission(
+                    requireActivity().packageName,
+                    writeStorageAccessPermissionGranterResult,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+
+                activity?.contentResolver?.takePersistableUriPermission(
+                    writeStorageAccessPermissionGranterResult,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+
+                var confirmationCounter = 0
+                val totalSuccessfulRecognitions =
+                    Music.getTotalSuccessfullyRecognisedFiles(audioFiles)
+
+                audioFiles.forEach { currentAudioFile ->
+                    if (currentAudioFile.isSuccessfullyRecognized()) {
+                        val fileExtension = currentAudioFile.file.name.substringAfterLast(".")
+
+                        val newFilePath =
+                            "${museStoragePath}/${currentAudioFile.artists?.get(0)} - " +
+                                    "${currentAudioFile.title}.$fileExtension".replaceIllegalCharacters()
+                        Log.i(tag, "confirmMusicRecognition: New file path: $newFilePath")
+                        val newFile =
+                            File(Environment.getExternalStorageDirectory().absolutePath + newFilePath)
+
+                        if (newFile.canRead()) {
+                            Log.i(tag, "confirmMusicRecognition: Can read $newFilePath")
+                        } else {
+                            Log.i(tag, "confirmMusicRecognition: Cannot read $newFilePath")
+                        }
+
+                        var oldFilePath = currentAudioFile.file.path
+                        oldFilePath = "/" + oldFilePath.substring(oldFilePath.lastIndexOf(":") + 1)
+                        Log.i(tag, "confirmMusicRecognition: Old file path: $oldFilePath")
+
+                        val oldFile =
+                            File(Environment.getExternalStorageDirectory().absolutePath + oldFilePath)
+
+                        if (oldFile.canRead()) {
+                            Log.i(tag, "confirmMusicRecognition: Can read $oldFilePath")
+                        } else {
+                            Log.i(tag, "confirmMusicRecognition: Cannot read $oldFilePath")
+                        }
+
+                        try {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                Files.copy(
+                                    oldFile.toPath(),
+                                    newFile.toPath(),
+                                    StandardCopyOption.REPLACE_EXISTING
+                                )
+                            } else {
+                                oldFile.copyTo(newFile, true)
+                            }
+
+                            Log.i(
+                                tag,
+                                "confirmMusicRecognition: ${newFile.name} copied successfully"
+                            )
+                        } catch (e: Exception) {
+                            Log.e(tag, "confirmMusicRecognition: ${newFile.name} copy failed")
+                            e.printStackTrace()
+                        }
+
+                        if (fileExtension == "mp3") {
+                            setMP3MusicTag(currentAudioFile, newFile)
+                        } else {
+                            setOtherMusicFormatTag(currentAudioFile, newFile)
+                        }
+
+                        confirmationCounter++
+
+                        if (confirmationCounter == totalSuccessfulRecognitions) {
+                            updateSubscriptionPlan(totalSuccessfulRecognitions)
+                            clearMusicFilesButton.isEnabled = true
+                            musicRecogniserProgressLayout.visibility = View.GONE
+
+                            displaySuccessfulConfirmationDialog(totalSuccessfulRecognitions)
+                        }
+                    }
+                }
+            } else {
+                context?.let { it1 ->
+                    AlertDialog.Builder(it1)
+                        .setMessage(getText(R.string.confirmation_permission_not_granted_message))
+                        .setPositiveButton("OK") { _, _ -> }
+                        .show()
+                }
+
+                musicRecogniserProgressLayout.visibility = View.GONE
+                confirmRecognitionFloatingActionButton.isEnabled = true
+                toggleMusicHolderWidgets(true)
+            }
         }
     }
 
