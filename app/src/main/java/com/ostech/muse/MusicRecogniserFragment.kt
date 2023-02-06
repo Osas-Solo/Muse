@@ -57,6 +57,7 @@ import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException
 import org.jaudiotagger.audio.mp3.MP3File
 import org.jaudiotagger.tag.FieldKey
+import org.jaudiotagger.tag.Tag
 import org.jaudiotagger.tag.TagException
 import org.jaudiotagger.tag.id3.AbstractID3v2Tag
 import retrofit2.Response
@@ -656,48 +657,52 @@ class MusicRecogniserFragment : Fragment() {
             val filePath = newMusicFile.path
             val audioFile =
                 MP3File(filePath)
-            val audioTag: AbstractID3v2Tag = audioFile.tagOrCreateDefault as AbstractID3v2Tag
-            audioTag.deleteField(FieldKey.ARTIST)
-            audioTag.deleteField(FieldKey.TITLE)
-            audioTag.deleteField(FieldKey.ALBUM)
-            audioTag.deleteField(FieldKey.ALBUM_ARTIST)
+            val audioTag: Tag? = audioFile.iD3v2Tag ?: audioFile.createDefaultTag()
 
-            var artists = ""
+            audioTag?.let {
+                audioTag.deleteField(FieldKey.ARTIST)
+                audioTag.deleteField(FieldKey.TITLE)
+                audioTag.deleteField(FieldKey.ALBUM)
+                audioTag.deleteField(FieldKey.ALBUM_ARTIST)
 
-            for (i in music.artists!!.indices) {
-                artists += music.artists!![i]
+                var artists = ""
 
-                if (i != music.artists!!.size - 1) {
-                    artists += ", "
+                for (i in music.artists!!.indices) {
+                    artists += music.artists!![i]
+
+                    if (i != music.artists!!.size - 1) {
+                        artists += ", "
+                    }
                 }
-            }
 
-            var genres = ""
+                var genres = ""
 
-            for (i in music.genres!!.indices) {
-                genres += music.genres!![i]
+                for (i in music.genres!!.indices) {
+                    genres += music.genres!![i]
 
-                if (i != music.genres!!.size - 1) {
-                    genres += ", "
+                    if (i != music.genres!!.size - 1) {
+                        genres += ", "
+                    }
                 }
+
+                audioTag.setField(FieldKey.ARTIST, artists)
+                audioTag.setField(FieldKey.TITLE, music.title)
+                audioTag.setField(FieldKey.ALBUM, music.album)
+                audioTag.setField(FieldKey.ALBUM_ARTIST, music.artists?.get(0))
+
+                if (genres.isNotEmpty()) {
+                    audioTag.deleteField(FieldKey.GENRE)
+                    audioTag.setField(FieldKey.GENRE, genres)
+                }
+
+                music.year?.let {
+                    audioTag.deleteField(FieldKey.YEAR)
+                    audioTag.setField(FieldKey.YEAR, it.toString())
+                }
+
+                audioFile.tag = audioTag
+                audioFile.commit()
             }
-
-            audioTag.setField(FieldKey.ARTIST, artists)
-            audioTag.setField(FieldKey.TITLE, music.title)
-            audioTag.setField(FieldKey.ALBUM, music.album)
-            audioTag.setField(FieldKey.ALBUM_ARTIST, music.artists?.get(0))
-
-            if (genres.isNotEmpty()) {
-                audioTag.deleteField(FieldKey.GENRE)
-                audioTag.setField(FieldKey.GENRE, genres)
-            }
-
-            music.year?.let {
-                audioTag.deleteField(FieldKey.YEAR)
-                audioTag.setField(FieldKey.YEAR, it.toString())
-            }
-
-            audioFile.commit()
         } catch (e: IOException) {
             e.printStackTrace()
         } catch (e: CannotWriteException) {
@@ -718,48 +723,52 @@ class MusicRecogniserFragment : Fragment() {
             val filePath = newMusicFile.path
             val audioFile =
                 AudioFileIO.read(File(filePath))
-            val audioTag = audioFile.tagOrCreateDefault
-            audioTag.deleteField(FieldKey.ARTIST)
-            audioTag.deleteField(FieldKey.TITLE)
-            audioTag.deleteField(FieldKey.ALBUM)
-            audioTag.deleteField(FieldKey.ALBUM_ARTIST)
+            val audioTag: Tag? = audioFile.tagOrCreateDefault
 
-            var artists = ""
+            audioTag?.let {
+                audioTag.deleteField(FieldKey.ARTIST)
+                audioTag.deleteField(FieldKey.TITLE)
+                audioTag.deleteField(FieldKey.ALBUM)
+                audioTag.deleteField(FieldKey.ALBUM_ARTIST)
 
-            for (i in music.artists!!.indices) {
-                artists += music.artists!![i]
+                var artists = ""
 
-                if (i != music.artists!!.size - 1) {
-                    artists += ", "
+                for (i in music.artists!!.indices) {
+                    artists += music.artists!![i]
+
+                    if (i != music.artists!!.size - 1) {
+                        artists += ", "
+                    }
                 }
-            }
 
-            var genres = ""
+                var genres = ""
 
-            for (i in music.genres!!.indices) {
-                genres += music.genres!![i]
+                for (i in music.genres!!.indices) {
+                    genres += music.genres!![i]
 
-                if (i != music.genres!!.size - 1) {
-                    genres += ", "
+                    if (i != music.genres!!.size - 1) {
+                        genres += ", "
+                    }
                 }
+
+                audioTag.setField(FieldKey.ARTIST, artists)
+                audioTag.setField(FieldKey.TITLE, music.title)
+                audioTag.setField(FieldKey.ALBUM, music.album)
+                audioTag.setField(FieldKey.ALBUM_ARTIST, music.artists?.get(0))
+
+                if (genres.isNotEmpty()) {
+                    audioTag.deleteField(FieldKey.GENRE)
+                    audioTag.setField(FieldKey.GENRE, genres)
+                }
+
+                music.year?.let {
+                    audioTag.deleteField(FieldKey.YEAR)
+                    audioTag.setField(FieldKey.YEAR, it.toString())
+                }
+
+                audioFile.tag = audioTag
+                audioFile.commit()
             }
-
-            audioTag.setField(FieldKey.ARTIST, artists)
-            audioTag.setField(FieldKey.TITLE, music.title)
-            audioTag.setField(FieldKey.ALBUM, music.album)
-            audioTag.setField(FieldKey.ALBUM_ARTIST, music.artists?.get(0))
-
-            if (genres.isNotEmpty()) {
-                audioTag.deleteField(FieldKey.GENRE)
-                audioTag.setField(FieldKey.GENRE, genres)
-            }
-
-            music.year?.let {
-                audioTag.deleteField(FieldKey.YEAR)
-                audioTag.setField(FieldKey.YEAR, it.toString())
-            }
-
-            audioFile.commit()
         } catch (e: IOException) {
             e.printStackTrace()
         } catch (e: CannotWriteException) {
