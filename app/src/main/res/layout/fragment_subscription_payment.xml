@@ -13,7 +13,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="20dp"
-        android:text="@string/card_details_text"/>
+        android:text="@string/card_details_text"
+        style="@style/MuseHeaderTextView" />
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/card_number_edit_text"
