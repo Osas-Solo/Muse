@@ -32,7 +32,8 @@
         <activity
             android:name=".NavigationActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|uiMode|layoutDirection|fontScale|density|screenLayout|colorMode"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".IntroActivity">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

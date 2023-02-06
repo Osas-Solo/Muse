@@ -168,7 +168,10 @@ class LoginFragment : Fragment() {
                     context?.let { it1 ->
                         AlertDialog.Builder(it1)
                             .setMessage(getText(R.string.login_success_message))
-                            .setPositiveButton("OK") { _, _ -> launchNavigationActivity() }
+                            .setPositiveButton("OK") { dialog, _ ->
+                                launchNavigationActivity()
+                                dialog.dismiss()
+                            }
                             .show()
 
                         launchNavigationActivity()

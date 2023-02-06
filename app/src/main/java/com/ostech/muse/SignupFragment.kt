@@ -388,8 +388,13 @@ class SignupFragment : Fragment() {
                     context?.let { it1 ->
                         AlertDialog.Builder(it1)
                             .setMessage(getText(R.string.signup_success_message))
-                            .setPositiveButton("OK") { _, _ -> launchLoginActivity() }
+                            .setPositiveButton("OK") { dialog, _ ->
+                                launchLoginActivity()
+                                dialog.dismiss()
+                            }
                             .show()
+
+                        launchLoginActivity()
                     }
                 } else {
                     val errorJSONString = it.errorBody()?.string()

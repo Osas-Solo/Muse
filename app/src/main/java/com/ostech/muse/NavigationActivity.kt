@@ -3,6 +3,7 @@ package com.ostech.muse
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -78,8 +79,16 @@ class NavigationActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (drawerToggle.onOptionsItemSelected(item)) {
-            true
+            return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        AlertDialog.Builder(this)
+            .setMessage(getText(R.string.exit_prompt_message))
+            .setPositiveButton("Yes") { _, _ -> finish() }
+            .setNegativeButton("No") { _, _ ->  }
+            .show()
     }
 }

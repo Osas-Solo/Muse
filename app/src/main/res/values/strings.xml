@@ -4,6 +4,8 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
 
+    <string name="exit_prompt_message">Are you sure you want to go back?</string>
+
     <string name="music_recogniser_menu_item_title">Music Recogniser</string>
     <string name="profile_menu_item_title">Profile</string>
     <string name="about_menu_item_title">About</string>
